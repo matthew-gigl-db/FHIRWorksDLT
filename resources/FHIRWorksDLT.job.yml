@@ -15,7 +15,7 @@ resources:
           - matthew.giglia@databricks.com
 
       tasks:
-        - task_key: notebook_task
+        - task_key: unity_catalog_setup
           # job_cluster_key: job_cluster
           notebook_task:
             notebook_path: ../src/notebooks/0-setup.py
