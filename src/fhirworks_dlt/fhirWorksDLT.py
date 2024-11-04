@@ -59,7 +59,7 @@ class fhirIngestionDLT:
             ,table_properties = table_properties
 
         )
-        def bronze_ingestion(spark = self.spark, source_folder_path_from_volume = source_folder_path_from_volume, maxFiles = maxFiles, maxBytes = maxBytes, wholeText = wholeText, options = options, volume = self.volume):
+        def bronze_ingestion(spark = self.spark, source_folder_path_from_volume = source_folder_path_from_volume, maxFiles = maxFiles, maxBytes = maxBytes, options = options, volume = self.volume):
 
             if source_folder_path_from_volume == "":
                 file_path = f"{volume}/"
