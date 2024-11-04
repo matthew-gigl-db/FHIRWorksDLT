@@ -72,7 +72,7 @@ class fhirIngestionDLT:
                 .withColumn("inputFilename", col("_metadata.file_name"))
                 .withColumn("fullFilePath", col("_metadata.file_path"))
                 .withColumn("fileMetadata", col("_metadata"))
-                .withColumn("reponse", col("value")
+                .withColumn("reponse", col("value"))
                 .select(
                     "fullFilePath"
                     ,lit(file_path).alias("datasource")
