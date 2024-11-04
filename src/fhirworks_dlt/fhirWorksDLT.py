@@ -72,14 +72,14 @@ class fhirIngestionDLT:
                 .withColumn("inputFilename", col("_metadata.file_name"))
                 .withColumn("fullFilePath", col("_metadata.file_path"))
                 .withColumn("fileMetadata", col("_metadata"))
-                .withColumn("response", col("value"))
+                .withColumn("resource", col("value"))
                 .select(
                     "fullFilePath"
                     ,lit(file_path).alias("datasource")
                     ,"inputFileName"
                     ,current_timestamp().alias("ingestTime")
                     ,current_timestamp().cast("date").alias("ingestDate")
-                    ,"response"
+                    ,"resource"
                     ,"fileMetadata"
                 )
             )
