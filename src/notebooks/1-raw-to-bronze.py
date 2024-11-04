@@ -29,5 +29,5 @@ Pipeline.ingest_raw_to_bronze(
     ,table_properties={"quality":"bronze", "source":"Redox", "delta.feature.variantType-preview":"supported"}
     ,source_folder_path_from_volume=source_folder_path_from_volume
     ,maxFiles = 1000
-    ,maxBytes = "10g"
+    ,maxBytes = "20g"
 )

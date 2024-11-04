@@ -12,7 +12,7 @@ from databricks.sdk.runtime import *
 
 # read streaming data as whole text using autoloader    
 def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str, wholeText: bool = False, skipRows: int = 0, options: dict = None) -> DataFrame:
-    stream_schema = "value VARIANT"
+    stream_schema = "value STRING"
     read_stream = (
         spark
         .readStream
