@@ -26,6 +26,6 @@ Pipeline = fhirWorksDLT.fhirIngestionDLT(
 Pipeline.ingest_raw_to_bronze(
     table_name="fhir_bronze"
     ,table_comment=f"A full text record of every FHIR JSON file recieved from Redox and located in {volume_path}."
-    ,table_properties={"quality":"bronze", "source":"Redox"}
+    ,table_properties={"quality":"bronze", "source":"Redox", "delta.feature.variantType-preview":"supported"}
     ,source_folder_path_from_volume=source_folder_path_from_volume
 )
