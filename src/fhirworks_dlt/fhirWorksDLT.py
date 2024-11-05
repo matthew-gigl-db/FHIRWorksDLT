@@ -89,10 +89,10 @@ class fhirIngestionDLT:
 
             return bronze_df
     
-    def stage_silver(self, bronze_table: str, table_name: str, ddl: str):
+    def stage_silver(self, bronze_table: str, fhir_resource: str):
         @dlt.table(
             name = f"{table_name}_stage"
-            ,comment = "Staging Table for data to stage into silver. Normally temporary."
+            ,comment = "Staging Table for the latest streamed FHIR data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
             ,temporary = False
             ,table_properties = {
                 "pipelines.autoOptimize.managed" : "true"
@@ -100,9 +100,13 @@ class fhirIngestionDLT:
             }
         )
         def stage_silver_fhir():
-            sdf = (
-                spark.readStream.table(f"{bronze_table}")
-                .withColumn("sequence_by", col("fileMetadata.file_modification_time"))
-                .withColumn("data", from_csv(col("value"), schema=ddl)).alias("data")
+            fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
+            sdf = spark.readStream.table(f"{bronze_table}")
+            bundle = FhirResource.from_raw_bundle_resource(sdf)
+            tdf = bundle.entry(fhir_custom)
+            return (
+                sdf
+                .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
+                .withColumn("bundle_id", col("id"))
+                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
             )
-            return explode_and_split(sdf)
