@@ -12,6 +12,12 @@ resources:
         - notebook:
             path: ../src/notebooks/1-raw-to-bronze.py
       target: ${var.schema}
+      development: true
+      photon: true
+      channel: PREVIEW
+      catalog: ${var.catalog}
+      serverless: true
+      data_sampling: false
       # clusters:
       #   - label: default
       #     node_type_id: r5d.2xlarge
@@ -19,11 +25,5 @@ resources:
       #       min_workers: 1
       #       max_workers: 10
       #       mode: ENHANCED
-      development: true
-      photon: true
-      channel: PREVIEW
-      catalog: ${var.catalog}
-      serverless: true
-      data_sampling: false
 
 
