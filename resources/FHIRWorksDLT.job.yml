@@ -18,13 +18,16 @@ resources:
         - task_key: run_setup_conditional
           condition_task:
             op: EQUAL_TO
-            left: "{{job.parameters.`delimitedForEach.include_header`}}"
-            right: "false"
-          description: Ensure that only the first file, with file_num == 0, contains the header record.  If so, then its OK to combine the files.  
+            left: "{{job.parameters.`workflow.run_setup`}}"
+            right: "true"
+          description: Conditional to determine if the 0-setup notebook task should be executed to create the catalog, schema, and external volume used in the workflow.  Running the 0-setup task more than once does not harm the workflow, but may result in unnecessary compute costs.  
         - task_key: unity_catalog_setup
           # job_cluster_key: job_cluster
           notebook_task:
             notebook_path: ../src/notebooks/0-setup.py
+          depends_on:
+            - task_key: run_setup_conditional
+              outcome: "true"
         - task_key: fhir_ingestion_pipeline
           pipeline_task:
             pipeline_id: ${resources.pipelines.fhir_ingestion.id}
@@ -51,6 +54,8 @@ resources:
           default: ${var.schema}
         - name: bundle.external_location
           default: ${var.external_location}
+        - name: workflow.run_setup
+          default: ${var.run_setup}
 
 
 
