@@ -24,6 +24,6 @@ resources:
       channel: PREVIEW
       catalog: ${var.catalog}
       serverless: true
-      # data_sampling: false
+      data_sampling: false
 
 
