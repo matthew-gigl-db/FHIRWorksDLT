@@ -9,6 +9,9 @@ import os
 import pandas as pd
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.runtime import *
+from dbignite.fhir_resource import FhirResource
+from dbignite.fhir_mapping_model import FhirSchemaModel
+
 
 # read streaming data as whole text using autoloader    
 def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str, wholeText: bool = False, skipRows: int = 0, options: dict = None) -> DataFrame:
@@ -85,3 +88,21 @@ class fhirIngestionDLT:
             )
 
             return bronze_df
+    
+    def stage_silver(self, bronze_table: str, table_name: str, ddl: str):
+        @dlt.table(
+            name = f"{table_name}_stage"
+            ,comment = "Staging Table for data to stage into silver. Normally temporary."
+            ,temporary = False
+            ,table_properties = {
+                "pipelines.autoOptimize.managed" : "true"
+                ,"pipelines.reset.allowed" : "true"
+            }
+        )
+        def stage_silver_fhir():
+            sdf = (
+                spark.readStream.table(f"{bronze_table}")
+                .withColumn("sequence_by", col("fileMetadata.file_modification_time"))
+                .withColumn("data", from_csv(col("value"), schema=ddl)).alias("data")
+            )
+            return explode_and_split(sdf)
