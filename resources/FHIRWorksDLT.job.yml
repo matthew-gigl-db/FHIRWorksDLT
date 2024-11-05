@@ -19,6 +19,9 @@ resources:
           # job_cluster_key: job_cluster
           notebook_task:
             notebook_path: ../src/notebooks/0-setup.py
+        - task_key: fhir_ingestion_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.fhir_ingestion.id}
         
       # job_clusters:
       #   - job_cluster_key: job_cluster

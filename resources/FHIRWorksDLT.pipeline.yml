@@ -1,0 +1,29 @@
+# The main pipeline for dlt_dropbox
+resources:
+  pipelines:
+    fhir_ingestion:
+      name: fhir_ingestion
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}/src
+        bundle.fixturePath: ${workspace.file_path}/fixtures
+        workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
+        workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
+      libraries:
+        - notebook:
+            path: ../src/notebooks/1-raw-to-bronze.py
+      target: ${var.schema}
+      # clusters:
+      #   - label: default
+      #     node_type_id: r5d.2xlarge
+      #     autoscale:
+      #       min_workers: 1
+      #       max_workers: 10
+      #       mode: ENHANCED
+      development: true
+      photon: true
+      channel: PREVIEW
+      catalog: ${var.catalog}
+      serverless: true
+      # data_sampling: false
+
+

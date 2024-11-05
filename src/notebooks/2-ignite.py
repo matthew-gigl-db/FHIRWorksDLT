@@ -15,11 +15,7 @@ help(dbignite)
 
 # COMMAND ----------
 
-from dbignite.readers import FhirFormat
-
-# COMMAND ----------
-
-from dbignite.readers import read_from_stream
+from dbignite.fhir_resource import FhirResource
 
 # COMMAND ----------
 
@@ -31,11 +27,34 @@ display(df)
 
 # COMMAND ----------
 
-df2 = (
-  df
-  .withColumn("bundle", dbignite.fhir_mapping_model.json.loads(dbignite.readers.col("response")))
-)
+bundle = FhirResource.from_raw_bundle_resource(df)
 
 # COMMAND ----------
 
+bundle.entry()
 
+# COMMAND ----------
+
+from dbignite.fhir_mapping_model import FhirSchemaModel
+
+# COMMAND ----------
+
+FhirSchemaModel().list_keys()
+
+# COMMAND ----------
+
+df = bundle.entry()
+
+# COMMAND ----------
+
+display(df.limit(1))
+
+# COMMAND ----------
+
+from pyspark.sql.functions import explode, col
+
+patient = df.withColumn("Patient", explode("Patient").alias("Patient")).select(col("id"), col("timestamp"), col("bundleUUID"), col("Patient.*"))
+
+# COMMAND ----------
+
+display(patient)

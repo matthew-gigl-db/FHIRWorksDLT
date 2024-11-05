@@ -40,3 +40,18 @@ targets:
         level: CAN_MANAGE
     run_as:
       user_name: matthew.giglia@databricks.com
+
+
+variables:
+  catalog:
+    description: Unity Catalog catalog used for the schemas, tables, and volumes.
+    default: redox
+  schema:
+    description: The schema where used for the tables, views, functions, models, or new volumes that will be created or used.
+    default: main
+  volume_path:
+    description: The source file path of the FHIR json files to be loaded.  (No traiiling '/')  
+    default: /Volumes/redox/main/landing
+  path_from_volume:
+    description: The subfolder path from the root volume that contains the FHIR JSON files to be loaded.  (No leading '/') 
+    default:  Files/default
