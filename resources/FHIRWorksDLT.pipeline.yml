@@ -3,7 +3,6 @@ resources:
   pipelines:
     fhir_ingestion:
       name: fhir_ingestion
-      full_refresh: ${var.full_refresh}
       configuration:
         bundle.sourcePath: ${workspace.file_path}/src
         bundle.fixturePath: ${workspace.file_path}/fixtures
