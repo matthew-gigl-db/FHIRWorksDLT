@@ -22,6 +22,7 @@ resources:
         - task_key: fhir_ingestion_pipeline
           pipeline_task:
             pipeline_id: ${resources.pipelines.fhir_ingestion.id}
+          depends_on: unity_catalog_setup
         
       # job_clusters:
       #   - job_cluster_key: job_cluster
