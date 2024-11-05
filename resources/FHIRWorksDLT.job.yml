@@ -15,6 +15,12 @@ resources:
           - matthew.giglia@databricks.com
 
       tasks:
+        - task_key: run_setup_conditional
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.`delimitedForEach.include_header`}}"
+            right: "false"
+          description: Ensure that only the first file, with file_num == 0, contains the header record.  If so, then its OK to combine the files.  
         - task_key: unity_catalog_setup
           # job_cluster_key: job_cluster
           notebook_task:
@@ -33,3 +39,18 @@ resources:
       #       autoscale:
       #           min_workers: 1
       #           max_workers: 4
+
+      parameters:
+        - name: bundle.workspace.file_path
+          default: ${workspace.file_path}
+        - name: bundle.target
+          default: ${bundle.target}
+        - name: bundle.catalog
+          default: ${var.catalog}
+        - name: bundle.schema
+          default: ${var.schema}
+        - name: bundle.external_location
+          default: ${var.external_location}
+
+
+

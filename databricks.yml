@@ -55,3 +55,6 @@ variables:
   path_from_volume:
     description: The subfolder path from the root volume that contains the FHIR JSON files to be loaded.  (No leading '/') 
     default:  Files/default
+  external_location:
+    description:  The Unity Catalog "external location" where the FHIR json resources are sent from the original source.  Note that this is used to set the volumne_path's external location during setup.  
+    default: redox_landing
