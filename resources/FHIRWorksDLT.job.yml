@@ -21,27 +21,22 @@ resources:
             left: "{{job.parameters.`workflow.run_setup`}}"
             right: "true"
           description: Conditional to determine if the 0-setup notebook task should be executed to create the catalog, schema, and external volume used in the workflow.  Running the 0-setup task more than once does not harm the workflow, but may result in unnecessary compute costs.  
+
         - task_key: unity_catalog_setup
-          # job_cluster_key: job_cluster
           notebook_task:
             notebook_path: ../src/notebooks/0-setup.py
           depends_on:
             - task_key: run_setup_conditional
               outcome: "true"
+
         - task_key: fhir_ingestion_pipeline
           pipeline_task:
             pipeline_id: ${resources.pipelines.fhir_ingestion.id}
           depends_on:
             - task_key: unity_catalog_setup
-        
-      # job_clusters:
-      #   - job_cluster_key: job_cluster
-      #     new_cluster:
-      #       spark_version: 15.4.x-scala2.12
-      #       node_type_id: i3.xlarge
-      #       autoscale:
-      #           min_workers: 1
-      #           max_workers: 4
+            - task_key: run_setup_conditional
+              outcome: "false"
+          run_if: AT_LEAST_ONE_SUCCEEDED
 
       parameters:
         - name: bundle.workspace.file_path
