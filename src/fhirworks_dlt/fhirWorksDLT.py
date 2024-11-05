@@ -105,7 +105,7 @@ class ignitePipeline:
             bundle = FhirResource.from_raw_bundle_resource(sdf)
             tdf = bundle.entry(fhir_custom)
             return (
-                sdf
+                tdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
