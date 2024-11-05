@@ -16,6 +16,10 @@ targets:
     default: true
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net
+    variables: 
+      catalog: redox
+      schema: main
+      full_refresh: true # comment out to use default of false
 
   dev_aws:
     mode: development
@@ -61,3 +65,6 @@ variables:
   run_setup:
     description: Set to 'true' if the '0-setup' notebook task should be run to create the catalog, schema, and volume required to execute the rest of the workflow.  Note that the external location and storage credential must be set up ahead of time.  Set to 'false' to skip the the '0-setup' notebook task and proceed directly to the FHIR ingestion pipeline. 
     default: false 
+  full_refresh:
+    description: Set to 'true' to execute a full refresh of the DLT pipelines or 'false' to run only incremental after the first execution. 
+    default: false
