@@ -53,8 +53,8 @@ from dbignite.fhir_mapping_model import FhirSchemaModel
 
 # COMMAND ----------
 
-for resource in FhirSchemaModel().list_keys():
-  Pipeline.stage_silver(
-    entry_table = "fhir_bronze_entry"
-    ,fhir_resource = resource
-  )
+# for resource in FhirSchemaModel().list_keys():
+#   Pipeline.stage_silver(
+#     entry_table = "fhir_bronze_entry"
+#     ,fhir_resource = resource
+#   )
