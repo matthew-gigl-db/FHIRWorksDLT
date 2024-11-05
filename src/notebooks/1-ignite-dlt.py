@@ -43,12 +43,18 @@ Pipeline.raw_to_bronze(
 
 # COMMAND ----------
 
+Pipeline.fhir_entry(
+    bronze_table="fhir_bronze"
+)
+
+# COMMAND ----------
+
 from dbignite.fhir_mapping_model import FhirSchemaModel
 
 # COMMAND ----------
 
 for resource in FhirSchemaModel().list_keys():
   Pipeline.stage_silver(
-    bronze_table = "fhir_bronze"
+    entry_table = "fhir_bronze_entry"
     ,fhir_resource = resource
   )
