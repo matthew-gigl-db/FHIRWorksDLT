@@ -36,7 +36,7 @@ resources:
             - task_key: unity_catalog_setup
             - task_key: run_setup_conditional
               outcome: "false"
-          run_if: "at_least_one_succeeded"
+          run_if: AT_LEAST_ONE_SUCCESS
 
       parameters:
         - name: bundle.workspace.file_path
