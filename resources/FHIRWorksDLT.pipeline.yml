@@ -10,7 +10,7 @@ resources:
         workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
       libraries:
         - notebook:
-            path: ../src/notebooks/1-raw-to-bronze.py
+            path: ../src/notebooks/1-ignite-dlt.py
       target: ${var.schema}
       development: true
       photon: true

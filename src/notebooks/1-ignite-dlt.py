@@ -1,4 +1,12 @@
 # Databricks notebook source
+# MAGIC %pip install git+https://github.com/databrickslabs/dbignite.git
+
+# COMMAND ----------
+
+# MAGIC %restart_python
+
+# COMMAND ----------
+
 import dlt
 
 # COMMAND ----------
@@ -16,14 +24,14 @@ import fhirWorksDLT
 
 # COMMAND ----------
 
-Pipeline = fhirWorksDLT.fhirIngestionDLT(
+Pipeline = fhirWorksDLT.ignitePipeline(
     spark = spark
     ,volume = volume_path
 )
 
 # COMMAND ----------
 
-Pipeline.ingest_raw_to_bronze(
+Pipeline.raw_to_bronze(
     table_name="fhir_bronze"
     ,table_comment=f"A full text record of every FHIR JSON file recieved from Redox and located in {volume_path}."
     ,table_properties={"quality":"bronze", "source":"Redox", "delta.feature.variantType-preview":"supported"}
@@ -31,3 +39,15 @@ Pipeline.ingest_raw_to_bronze(
     ,maxFiles = 1000
     ,maxBytes = "20g"
 )
+
+# COMMAND ----------
+
+from dbignite.fhir_mapping_model import FhirSchemaModel
+
+# COMMAND ----------
+
+for resource in FhirSchemaModel().list_keys():
+  Pipeline.stage_silver(
+    bronze_table = "fhir_bronze"
+    ,fhir_resource = resource
+  )

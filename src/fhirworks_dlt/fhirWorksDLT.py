@@ -38,7 +38,7 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
-class fhirIngestionDLT:
+class ignitePipeline:
 
     def __init__(
         self
@@ -51,7 +51,7 @@ class fhirIngestionDLT:
     def __repr__(self):
         return f"""fhirIngestionDLT(volume='{self.volume}')"""
 
-    def ingest_raw_to_bronze(self, table_name: str, table_comment: str, table_properties: dict, source_folder_path_from_volume: str = "", maxFiles: int = 1000, maxBytes: str = "10g", options: dict = None):
+    def raw_to_bronze(self, table_name: str, table_comment: str, table_properties: dict, source_folder_path_from_volume: str = "", maxFiles: int = 1000, maxBytes: str = "10g", options: dict = None):
         """
         Ingests all files in a volume's path to a key value pair bronze table.
         """
@@ -91,7 +91,7 @@ class fhirIngestionDLT:
     
     def stage_silver(self, bronze_table: str, fhir_resource: str):
         @dlt.table(
-            name = f"{table_name}_stage"
+            name = f"{fhir_resource}_stage"
             ,comment = "Staging Table for the latest streamed FHIR data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
             ,temporary = False
             ,table_properties = {
@@ -101,7 +101,7 @@ class fhirIngestionDLT:
         )
         def stage_silver_fhir():
             fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
-            sdf = spark.readStream.table(f"{bronze_table}")
+            sdf = spark.readStream.table(f"LIVE.{bronze_table}")
             bundle = FhirResource.from_raw_bundle_resource(sdf)
             tdf = bundle.entry(fhir_custom)
             return (
