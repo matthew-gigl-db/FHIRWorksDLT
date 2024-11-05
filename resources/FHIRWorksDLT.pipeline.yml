@@ -1,8 +1,8 @@
 # The main pipeline for dlt_dropbox
 resources:
   pipelines:
-    fhir_ingestion:
-      name: fhir_ingestion
+    fhirWorks_dlt:
+      name: fhirWorks_dlt
       configuration:
         bundle.sourcePath: ${workspace.file_path}/src
         bundle.fixturePath: ${workspace.file_path}/fixtures

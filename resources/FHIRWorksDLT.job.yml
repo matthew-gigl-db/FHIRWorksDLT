@@ -29,9 +29,9 @@ resources:
             - task_key: run_setup_conditional
               outcome: "true"
 
-        - task_key: fhir_ingestion_pipeline
+        - task_key: fhirWorks_dlt_pipeline
           pipeline_task:
-            pipeline_id: ${resources.pipelines.fhir_ingestion.id}
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt.id}
           depends_on:
             - task_key: unity_catalog_setup
             - task_key: run_setup_conditional

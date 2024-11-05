@@ -3,7 +3,7 @@
 
 # COMMAND ----------
 
-# MAGIC %restart_python
+# %restart_python
 
 # COMMAND ----------
 
@@ -17,7 +17,8 @@ source_folder_path_from_volume = spark.conf.get("workflow_inputs.source_folder_p
 
 # COMMAND ----------
 
-import sys, os
+import sys
+import os
 sys.path.append(os.path.abspath(f"{sourcePath}/fhirworks_dlt"))
 
 import fhirWorksDLT
