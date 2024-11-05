@@ -17,7 +17,7 @@ resources:
       channel: PREVIEW
       catalog: ${var.catalog}
       serverless: true
-      data_sampling: false
+      # data_sampling: false
       # clusters:
       #   - label: default
       #     node_type_id: r5d.2xlarge
