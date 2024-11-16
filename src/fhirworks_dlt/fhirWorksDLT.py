@@ -92,7 +92,7 @@ class ignitePipeline:
         @dlt.table(
             name = f"{bronze_table}_entry"
             ,comment = "FHIR bundle entry transformations on streaming FHIR data from bronze."
-            ,temporary = True
+            ,temporary = False
             ,table_properties = {
                 "pipelines.autoOptimize.managed" : "true"
                 ,"pipelines.reset.allowed" : "true"
