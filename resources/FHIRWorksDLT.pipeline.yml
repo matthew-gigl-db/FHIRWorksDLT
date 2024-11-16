@@ -11,6 +11,8 @@ resources:
       libraries:
         - notebook:
             path: ../src/notebooks/1-ignite-dlt-bronze.py
+        - notebook:
+            path: ../src/notebooks/1-ignite-dlt-silver.py
       target: ${var.schema}
       development: true
       photon: true
