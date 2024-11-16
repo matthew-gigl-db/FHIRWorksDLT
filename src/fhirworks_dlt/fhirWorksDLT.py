@@ -101,7 +101,8 @@ class ignitePipeline:
         def bundle_entry():
             sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
             bundle = FhirResource.from_raw_bundle_resource(sdf)
-            return bundle.entry()
+            df = bundle.entry()
+            return df
     
     def stage_silver(self, entry_table: str, fhir_resource: str):
         @dlt.table(

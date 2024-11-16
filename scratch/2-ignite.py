@@ -39,6 +39,10 @@ bundle = FhirResource.from_raw_bundle_resource(df)
 
 # COMMAND ----------
 
+type(bundle)
+
+# COMMAND ----------
+
 from dbignite.fhir_mapping_model import FhirSchemaModel
 
 # COMMAND ----------
@@ -65,6 +69,10 @@ sdf = bundle.entry(fhir_custom)
 # COMMAND ----------
 
 display(sdf)
+
+# COMMAND ----------
+
+type(sdf)
 
 # COMMAND ----------
 
