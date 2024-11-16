@@ -43,13 +43,13 @@ Pipeline.raw_to_bronze(
 
 # COMMAND ----------
 
-Pipeline.fhir_entry(
-    bronze_table="fhir_bronze"
-)
+# Pipeline.fhir_entry(
+#     bronze_table="fhir_bronze"
+# )
 
 # COMMAND ----------
 
-from dbignite.fhir_mapping_model import FhirSchemaModel
+# from dbignite.fhir_mapping_model import FhirSchemaModel
 
 # COMMAND ----------
 

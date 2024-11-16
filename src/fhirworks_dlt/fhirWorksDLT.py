@@ -116,9 +116,10 @@ class ignitePipeline:
         def stage_silver_fhir():
             fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
             sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
-            return (
+            df = (
                 sdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
             )
+            return df
