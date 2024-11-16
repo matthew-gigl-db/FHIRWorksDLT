@@ -38,6 +38,12 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
+def dlt_stream_entry(spark: SparkSession, table_name: str): 
+    sdf = self.spark.readStream.table(f"LIVE.{table_name}")
+    bundle = FhirResource.from_raw_bundle_resource(sdf)
+    return bundle.entry()
+
+
 class ignitePipeline:
 
     def __init__(
