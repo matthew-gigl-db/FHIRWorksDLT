@@ -32,6 +32,18 @@ Pipeline = fhirWorksDLT.ignitePipeline(
 
 # COMMAND ----------
 
-Pipeline.fhir_entry(
-    bronze_table="fhir_bronze"
-)
+# Pipeline.fhir_entry(
+#     bronze_table="fhir_bronze"
+# )
+
+# COMMAND ----------
+
+from dbignite.fhir_mapping_model import FhirSchemaModel
+
+# COMMAND ----------
+
+for resource in FhirSchemaModel().list_keys():
+  Pipeline.stage_silver(
+    bronze_table = "fhir_bronze"
+    ,fhir_resource = resource
+  )

@@ -40,21 +40,3 @@ Pipeline.raw_to_bronze(
     ,maxFiles = 1000
     ,maxBytes = "20g"
 )
-
-# COMMAND ----------
-
-# Pipeline.fhir_entry(
-#     bronze_table="fhir_bronze"
-# )
-
-# COMMAND ----------
-
-# from dbignite.fhir_mapping_model import FhirSchemaModel
-
-# COMMAND ----------
-
-# for resource in FhirSchemaModel().list_keys():
-#   Pipeline.stage_silver(
-#     entry_table = "fhir_bronze_entry"
-#     ,fhir_resource = resource
-#   )
