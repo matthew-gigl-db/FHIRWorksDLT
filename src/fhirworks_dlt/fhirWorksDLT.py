@@ -112,10 +112,31 @@ class ignitePipeline:
             df = bundle.entry()
             return df
     
-    def stage_silver(self, entry_table: str, fhir_resource: str):
+    # def stage_silver(self, entry_table: str, fhir_resource: str):
+    #     @dlt.table(
+    #         name = f"{fhir_resource}_stage"
+    #         ,comment = "Staging Table for the latest streamed FHIR data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
+    #         ,temporary = False
+    #         ,table_properties = {
+    #             "pipelines.autoOptimize.managed" : "true"
+    #             ,"pipelines.reset.allowed" : "true"
+    #         }
+    #     )
+    #     def stage_silver_fhir():
+    #         fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
+    #         sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
+    #         df = (
+    #             sdf
+    #             .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
+    #             .withColumn("bundle_id", col("id"))
+    #             .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
+    #         )
+    #         return df
+
+    def stage_silver(self, bronze_table: str, fhir_resource: str):
         @dlt.table(
             name = f"{fhir_resource}_stage"
-            ,comment = "Staging Table for the latest streamed FHIR data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
+            ,comment = f"Staging Table for the latest streamed {fhir_resource} FHIR resource data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
             ,temporary = False
             ,table_properties = {
                 "pipelines.autoOptimize.managed" : "true"
@@ -124,11 +145,13 @@ class ignitePipeline:
         )
         def stage_silver_fhir():
             fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
-            sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
-            df = (
-                sdf
+            sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
+            bundle = StreamingFhir.from_raw_bundle_resource(sdf)
+            sdf_entry = bundle.entry(fhir_custom)
+            return (
+                sdf_entry
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
             )
-            return df
+
