@@ -1,0 +1,31 @@
+# The main pipeline for dlt_dropbox
+resources:
+  pipelines:
+    fhirWorks_dlt:
+      name: fhirWorks_dlt
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}/src
+        bundle.fixturePath: ${workspace.file_path}/fixtures
+        workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
+        workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
+      libraries:
+        - notebook:
+            path: ../src/notebooks/1-ignite-dlt-bronze.py
+        - notebook:
+            path: ../src/notebooks/2-ignite-dlt-silver.py
+      target: ${var.schema}
+      development: true
+      photon: true
+      channel: PREVIEW
+      catalog: ${var.catalog}
+      serverless: true
+      # data_sampling: false
+      # clusters:
+      #   - label: default
+      #     node_type_id: r5d.2xlarge
+      #     autoscale:
+      #       min_workers: 1
+      #       max_workers: 10
+      #       mode: ENHANCED
+
+

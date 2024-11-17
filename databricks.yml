@@ -16,6 +16,9 @@ targets:
     default: true
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net
+    variables: 
+      catalog: redox
+      schema: main
 
   dev_aws:
     mode: development
@@ -40,3 +43,25 @@ targets:
         level: CAN_MANAGE
     run_as:
       user_name: matthew.giglia@databricks.com
+
+
+variables:
+  catalog:
+    description: Unity Catalog catalog used for the schemas, tables, and volumes.  Created during 0-setup.  Created during 0-setup notebook task execution.  
+    default: redox
+  schema:
+    description: The schema where used for the tables, views, functions, models, or new volumes that will be created or used.  Created during 0-setup notebook task execution.  
+    default: main
+  volume_path:
+    description: The source file path of the FHIR json files to be loaded.  (No traiiling '/') Created as an external volume during 0-setup notebook task execution.  
+    default: /Volumes/${var.catalog}/${var.schema}/landing
+  path_from_volume:
+    description: The subfolder path from the root volume that contains the FHIR JSON files to be loaded.  (No leading '/') 
+    default:  Files/default
+  external_location:
+    description:  The Unity Catalog "external location" where the FHIR json resources are sent from the original source.  Note that this is used to set the volumne_path's external location during setup.  
+    default: redox_landing
+  run_setup:
+    description: Set to 'true' if the '0-setup' notebook task should be run to create the catalog, schema, and volume required to execute the rest of the workflow.  Note that the external location and storage credential must be set up ahead of time.  Set to 'false' to skip the the '0-setup' notebook task and proceed directly to the FHIR ingestion pipeline. 
+    default: false 
+
