@@ -38,10 +38,11 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
-def dlt_stream_entry(spark: SparkSession, table_name: str): 
-    sdf = self.spark.readStream.table(f"LIVE.{table_name}")
-    bundle = FhirResource.from_raw_bundle_resource(sdf)
-    return bundle.entry()
+class StreamingFhir(FhirResource):
+    ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
+    def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
+        resources_df = data.select(col("resource"), get_json_object("resource", "$.resourceType").alias("resourceType"))
+        return BundleFhirResource(resources_df)
 
 
 class ignitePipeline:
@@ -106,7 +107,7 @@ class ignitePipeline:
         )
         def bundle_entry():
             sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
-            bundle = FhirResource.from_raw_bundle_resource(sdf)
+            bundle = StreamingFhir.from_raw_bundle_resource(sdf)
             df = bundle.entry()
             return df
     
