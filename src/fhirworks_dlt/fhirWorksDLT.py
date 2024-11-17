@@ -10,7 +10,7 @@ import pandas as pd
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.runtime import *
 from dbignite.fhir_resource import FhirResource
-from dbignite.bundle_fhir_resource import BundleFhirResource
+from dbignite.fhir_resource import BundleFhirResource
 from dbignite.fhir_mapping_model import FhirSchemaModel
 
 
