@@ -44,7 +44,8 @@ fhir_schema = FhirSchemaModel()
 # COMMAND ----------
 
 for resource in fhir_schema.list_keys():
-  Pipeline.stage_silver(
-    bronze_table = "fhir_bronze"
-    ,fhir_resource = resource
-  )
+  if resource not in ("Bundle"):
+    Pipeline.stage_silver(
+      bronze_table = "fhir_bronze"
+      ,fhir_resource = resource
+    )

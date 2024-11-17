@@ -57,10 +57,11 @@ bundle.entry(fhir_custom)
 # COMMAND ----------
 
 from dbignite.fhir_mapping_model import FhirSchemaModel
+fhir_schema = FhirSchemaModel()
 
 # COMMAND ----------
 
-FhirSchemaModel().list_keys()
+sorted(fhir_schema.list_keys())
 
 # COMMAND ----------
 
