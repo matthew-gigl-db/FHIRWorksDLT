@@ -108,7 +108,7 @@ class ignitePipeline:
         }):
         @dlt.table(
             name = f"fhir_bronze_{fhir_resource}_entry"
-            ,comment = f"FHIR bundle {fhire_resource} entry transformations on streaming FHIR data from bronze. Normally temporary."
+            ,comment = f"FHIR bundle {fhir_resource} entry transformations on streaming FHIR data from bronze. Normally temporary."
             ,temporary = temporary
             ,table_properties = table_properties
         )
