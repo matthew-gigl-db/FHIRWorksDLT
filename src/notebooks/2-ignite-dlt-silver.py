@@ -61,7 +61,7 @@ for resource in fhir_schemas:
 
 for resource in fhir_schemas:
   Pipeline.stage_silver(
-    entry_table = f"fhir_bronze_{fhir_resource}_entry"
+    entry_table = f"fhir_bronze_{resource}_entry"
     ,fhir_resource = resource
     ,live = True
     ,temporary = False
