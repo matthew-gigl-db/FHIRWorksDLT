@@ -14,6 +14,7 @@ import dlt
 sourcePath = spark.conf.get('bundle.sourcePath')
 volume_path = spark.conf.get("workflow_inputs.volume_path")
 source_folder_path_from_volume = spark.conf.get("workflow_inputs.source_folder_path_from_volume")
+fhir_schemas = spark.conf.get("workflow.inputs.fhir_schemas")
 
 # COMMAND ----------
 
@@ -32,18 +33,12 @@ Pipeline = fhirWorksDLT.ignitePipeline(
 
 # COMMAND ----------
 
-# Pipeline.fhir_entry(
-#     bronze_table="fhir_bronze"
-# )
+# from dbignite.fhir_mapping_model import FhirSchemaModel
+# fhir_schema = FhirSchemaModel()
 
 # COMMAND ----------
 
-from dbignite.fhir_mapping_model import FhirSchemaModel
-fhir_schema = FhirSchemaModel()
-
-# COMMAND ----------
-
-for resource in fhir_schema.list_keys():
+for resource in fhir_schemas:
   if resource not in ("Bundle"):
     Pipeline.stage_silver(
       bronze_table = "fhir_bronze"
