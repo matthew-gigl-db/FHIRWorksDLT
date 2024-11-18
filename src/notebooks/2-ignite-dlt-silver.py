@@ -59,9 +59,8 @@ for resource in fhir_schemas:
 
 # COMMAND ----------
 
-# for resource in fhir_schemas:
-#   if resource not in ("Bundle"):
-#     Pipeline.stage_silver(
-#       bronze_table = "fhir_bronze"
-#       ,fhir_resource = resource
-#     )
+for resource in fhir_schemas:
+  Pipeline.stage_silver(
+    bronze_table = "fhir_bronze"
+    ,fhir_resource = resource
+  )

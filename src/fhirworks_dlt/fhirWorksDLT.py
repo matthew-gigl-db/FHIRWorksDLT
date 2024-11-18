@@ -144,6 +144,7 @@ class ignitePipeline:
 
     def stage_silver(
         self
+        ,entry_table: str
         ,fhir_resource: str
         ,live: bool = True
         ,temporary: bool = True
@@ -160,9 +161,9 @@ class ignitePipeline:
         def stage_silver_fhir():
             # fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
             if live:
-                sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
+                sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
             else:
-                sdf = self.spark.readStream.table(f"{bronze_table}")
+                sdf = self.spark.readStream.table(f"{entry_table}")
             # bundle = StreamingFhir.from_raw_bundle_resource(sdf)
             # sdf_entry = bundle.entry(fhir_custom)
             sdf_entry = sdf
