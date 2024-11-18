@@ -54,13 +54,15 @@ for resource in fhir_schemas:
     bronze_table=f"{source_catalog}.{source_schema}.fhir_bronze"
     ,fhir_resource = resource
     ,live = False
-    ,temporary = False
+    ,temporary = True
   )
 
 # COMMAND ----------
 
 for resource in fhir_schemas:
   Pipeline.stage_silver(
-    bronze_table = "fhir_bronze"
+    entry_table = f"fhir_bronze_{fhir_resource}_entry"
     ,fhir_resource = resource
+    ,live = True
+    ,temporary = False
   )
