@@ -96,15 +96,21 @@ class ignitePipeline:
             )
             return bronze_df
         
-    def fhir_entry(self, bronze_table: str):
+    def fhir_entry(
+        self
+        ,bronze_table: str
+        ,name = f"{bronze_table}_entry"
+        ,comment = "FHIR bundle entry transformations on streaming FHIR data from bronze."
+        ,temporary: bool = True
+        ,table_properties: dict = {
+            "pipelines.autoOptimize.managed" : "true"
+            ,"pipelines.reset.allowed" : "true"
+        }):
         @dlt.table(
-            name = f"{bronze_table}_entry"
-            ,comment = "FHIR bundle entry transformations on streaming FHIR data from bronze."
-            ,temporary = False
-            ,table_properties = {
-                "pipelines.autoOptimize.managed" : "true"
-                ,"pipelines.reset.allowed" : "true"
-            }
+            name = name
+            ,comment = comment
+            ,temporary = temporary
+            ,table_properties = table_properties
         )
         def bundle_entry():
             sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
