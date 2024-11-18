@@ -18,6 +18,15 @@ fhir_schemas = spark.conf.get("workflow.inputs.fhir_schemas")
 
 # COMMAND ----------
 
+# fhir_schemas = "AllergyIntolerance,Provenance,Organization,Encounter,Medication,Practitioner,Condition,RelatedPerson,DocumentReference,QuestionnaireResponse,CareTeam,Coverage,Observation,Goal,CarePlan,ServiceRequest,Questionnaire,MedicationDispense,Immunization,Patient,Specimen,Device,DiagnosticReport,Location,MedicationRequest,Procedure"
+
+# COMMAND ----------
+
+fhir_schemas = fhir_schemas.split(',')
+fhir_schemas
+
+# COMMAND ----------
+
 import sys
 import os
 sys.path.append(os.path.abspath(f"{sourcePath}/fhirworks_dlt"))
