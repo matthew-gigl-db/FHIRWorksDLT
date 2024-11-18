@@ -48,13 +48,13 @@ class StreamingFhir(FhirResource):
 class StreamingBundleFhirResource(BundleFhirResource):
     ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
-    return (
-        self._raw_data
-        .select(from_json("resource", BundleFhirResource.BUNDLE_SCHEMA).alias("bundle")) #root level schema
-        .select(BundleFhirResource.list_entry_columns(schemas )#entry[] into indvl cols
-            + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), "ingestDate", "ingestTime"] #root cols timestamp & id 
-        ).withColumn("bundleUUID", expr("uuid()")) 
-    )
+        return (
+            self._raw_data
+            .select(from_json("resource", BundleFhirResource.BUNDLE_SCHEMA).alias("bundle")) #root level schema
+            .select(BundleFhirResource.list_entry_columns(schemas )#entry[] into indvl cols
+                + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), "ingestDate", "ingestTime"] #root cols timestamp & id 
+            ).withColumn("bundleUUID", expr("uuid()")) 
+        )
 
 
 
