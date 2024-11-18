@@ -99,23 +99,27 @@ class ignitePipeline:
     def fhir_entry(
         self
         ,bronze_table: str
-        ,name = f"fhir_bronze_entry"
-        ,comment = "FHIR bundle entry transformations on streaming FHIR data from bronze."
+        ,fhir_resource: str
+        ,live: bool = True
         ,temporary: bool = True
         ,table_properties: dict = {
             "pipelines.autoOptimize.managed" : "true"
             ,"pipelines.reset.allowed" : "true"
         }):
         @dlt.table(
-            name = name
-            ,comment = comment
+            name = f"fhir_bronze_{fhir_resource}_entry"
+            ,comment = f"FHIR bundle {fhire_resource} entry transformations on streaming FHIR data from bronze. Normally temporary."
             ,temporary = temporary
             ,table_properties = table_properties
         )
         def bundle_entry():
-            sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
+            fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
+            if live:
+                sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
+            else:
+                sdf = self.spark.readStream.table(f"{bronze_table}")
             bundle = StreamingFhir.from_raw_bundle_resource(sdf)
-            return bundle.entry()
+            return bundle.entry(fhir_custom)
     
     # def stage_silver(self, entry_table: str, fhir_resource: str):
     #     @dlt.table(
