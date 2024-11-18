@@ -99,7 +99,7 @@ class ignitePipeline:
     def fhir_entry(
         self
         ,bronze_table: str
-        ,name = f"{bronze_table}_entry"
+        ,name = f"fhir_bronze_entry"
         ,comment = "FHIR bundle entry transformations on streaming FHIR data from bronze."
         ,temporary: bool = True
         ,table_properties: dict = {
