@@ -29,14 +29,28 @@ resources:
             - task_key: run_setup_conditional
               outcome: "true"
 
-        - task_key: fhirWorks_dlt_pipeline
+        - task_key: fhirWorks_dlt_pipeline_bronze
           pipeline_task:
-            pipeline_id: ${resources.pipelines.fhirWorks_dlt.id}
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt_bronze.id}
           depends_on:
             - task_key: unity_catalog_setup
             - task_key: run_setup_conditional
               outcome: "false"
           run_if: AT_LEAST_ONE_SUCCESS
+
+        - task_key: fhirWorks_dlt_pipeline_silver_core
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_core.id}
+          depends_on:
+            - task_key: fhirWorks_dlt_pipeline_bronze
+
+        - task_key: fhirWorks_dlt_pipeline_silver_ext
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_core.id}
+          depends_on:
+            - task_key: fhirWorks_dlt_pipeline_bronze
+
+        
 
       parameters:
         - name: bundle.workspace.file_path
