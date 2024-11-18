@@ -4,7 +4,8 @@ bundle:
   name: FHIRWorksDLT
 
 include:
-  - resources/*.yml
+  - resources/*.job.yml
+  - resources/*.pipeline.yml
 
 targets:
   dev_azure:
