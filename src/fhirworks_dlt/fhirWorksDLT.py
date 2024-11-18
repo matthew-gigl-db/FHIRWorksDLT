@@ -43,7 +43,18 @@ class StreamingFhir(FhirResource):
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
         resources_df = data.select(col("resource"), get_json_object("resource", "$.resourceType").alias("resourceType"))
-        return BundleFhirResource(resources_df)
+        return StreamingBundleFhirResource(resources_df.filter("upper(resourceType) == 'BUNDLE'"))
+
+class StreamingBundleFhirResource(BundleFhirResource):
+    ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
+    def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
+    return (self._raw_data
+            .select(from_json("resource", BundleFhirResource.BUNDLE_SCHEMA).alias("bundle")) #root level schema
+            .select(BundleFhirResource.list_entry_columns(schemas )#entry[] into indvl cols
+                + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), "ingestDate", "ingestTime"] #root cols timestamp & id 
+            ).withColumn("bundleUUID", expr("uuid()")) 
+        )
+
 
 
 class ignitePipeline:
