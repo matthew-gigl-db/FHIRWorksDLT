@@ -50,6 +50,6 @@ Pipeline.raw_to_bronze(
 # COMMAND ----------
 
 Pipeline.fhir_entry(
-  bronze_table_name="fhir_bronze"
+  bronze_table="fhir_bronze"
   ,temporary = False
 )
