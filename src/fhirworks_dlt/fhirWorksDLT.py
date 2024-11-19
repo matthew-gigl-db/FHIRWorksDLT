@@ -57,7 +57,7 @@ class StreamingFhir(FhirResource):
     #      .add("id", StringType())
     #      .add("timestamp", StringType())
     # )
-    BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
+    FULL_BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
 
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
@@ -70,10 +70,10 @@ class StreamingBundleFhirResource(BundleFhirResource):
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
         return (
             self._raw_data
-            .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA)) #root level schema
+            .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.FULL_BUNDLE_SCHEMA)) #root level schema
             .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
                     + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-                       , col("bundle")
+                       , col("bundle.entry.fullUrl")
                     ] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
