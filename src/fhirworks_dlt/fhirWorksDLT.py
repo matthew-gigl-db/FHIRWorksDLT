@@ -57,7 +57,7 @@ class StreamingBundleFhirResource(BundleFhirResource):
         return (
             self._raw_data
             .withColumn("bundle", from_json("resource", BundleFhirResource.BUNDLE_SCHEMA)) #root level schema
-            .select(BundleFhirResource.list_entry_columns(schemas, parent_column=col("bundle.entry")) + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")] #entry[] into indvl cols and root cols timestamp & id, plus ingest metadata
+            .select(BundleFhirResource.list_entry_columns(schemas, parent_column=col("bundle.entry.resource")) + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl")] #entry[] into indvl cols and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
@@ -164,7 +164,7 @@ class ignitePipeline:
                 sdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
-                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col(f"{fhir_resource}.*"))
+                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("fullUrl"), col(f"{fhir_resource}.*"))
                 .withColumnRenamed("id", f"{fhir_resource}_id".lower())
             )
 
