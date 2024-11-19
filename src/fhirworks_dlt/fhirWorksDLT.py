@@ -45,20 +45,6 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 ### dbignite subclasses ###
 ###########################
 class StreamingFhir(FhirResource):
-    # Note: Redox uses entry.fullUrl for primary keys
-    # BUNDLE_SCHEMA = (
-    #     StructType()
-    #      .add("resourceType", StringType())
-    #      .add("entry", ArrayType(
-    #          StructType()
-    #           .add("resource", StringType())
-    #           .add("fullUrl", StringType())
-    #      ))
-    #      .add("id", StringType())
-    #      .add("timestamp", StringType())
-    # )
-    FULL_BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
-
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
         resources_df = data.withColumn("resourceType", get_json_object("resource", "$.resourceType"))
@@ -66,12 +52,23 @@ class StreamingFhir(FhirResource):
         return StreamingBundleFhirResource(resources_df.filter("upper(resourceType) == 'BUNDLE'"))
 
 class StreamingBundleFhirResource(BundleFhirResource):
-    FULL_BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
+    # Note: Redox uses entry.fullUrl for primary keys
+    BUNDLE_SCHEMA = (
+        StructType()
+         .add("resourceType", StringType())
+         .add("entry", ArrayType(
+             StructType()
+              .add("resource", StringType())
+              .add("fullUrl", StringType())
+         ))
+         .add("id", StringType())
+         .add("timestamp", StringType())
+    )
     ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
         return (
             self._raw_data
-            .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.FULL_BUNDLE_SCHEMA)) #root level schema
+            .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA)) #root level schema
             .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
                     + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
                        , col("bundle.entry.fullUrl")
