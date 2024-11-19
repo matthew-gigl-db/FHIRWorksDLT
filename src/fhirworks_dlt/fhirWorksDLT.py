@@ -64,15 +64,15 @@ class StreamingBundleFhirResource(BundleFhirResource):
          .add("id", StringType())
          .add("timestamp", StringType())
     )
+
     ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
         return (
             self._raw_data
             .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA)) #root level schema
             .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
-                    + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-                       , col("bundle.entry.fullUrl")
-                    ] # and root cols timestamp & id, plus ingest metadata
+                + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl")
+                ] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
@@ -180,7 +180,7 @@ class ignitePipeline:
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-                        # ,col("entry.fullUrl")
+                        ,col("efullUrl")
                         ,col(f"{fhir_resource}.*"))
                 .withColumnRenamed("id", f"{fhir_resource}_id".lower())
             )
