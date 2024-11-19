@@ -29,6 +29,7 @@ us_core_keys = set(us_core.list_keys())
 
 difference_in_keys = all_schemas_keys.symmetric_difference(us_core_keys)
 difference_in_keys = list(difference_in_keys)
+difference_in_keys = [key for key in difference_in_keys if key != 'Bundle']
 sorted(difference_in_keys)
 
 # COMMAND ----------
