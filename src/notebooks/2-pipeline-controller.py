@@ -44,17 +44,16 @@ from pyspark.sql.types import *
 
 # COMMAND ----------
 
-    BUNDLE_SCHEMA = (
-        StructType()
-         .add("resourceType", StringType())
-         .add("entry", ArrayType(
-             StructType()
-             .add("resource", StringType())
-             .add("fullUrl", StringType())
-         ))
-         .add("id", StringType())
-         .add("timestamp", StringType())
-    )
+BUNDLE_SCHEMA = (
+    StructType()
+      .add("resourceType", StringType())
+      .add("entry", ArrayType(
+          StructType().add("resource", StringType())
+          ,StructType().add("fullUrl", StringType())
+      ))
+      .add("id", StringType())
+      .add("timestamp", StringType())
+)
 
 # COMMAND ----------
 
