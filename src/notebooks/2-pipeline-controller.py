@@ -58,3 +58,27 @@ BUNDLE_SCHEMA = (
 # COMMAND ----------
 
 BUNDLE_SCHEMA
+
+# COMMAND ----------
+
+schema = StructType([
+    StructField("arrayField", ArrayType(
+        StructType([
+            StructField("field1", StringType(), True),
+            StructField("field2", StringType(), True)
+        ])
+    ), True)
+])
+
+# COMMAND ----------
+
+schema2 = (
+  StructType()
+  .add("arrayField", ArrayType(
+    StructType()
+    .add("field1", StringType())
+    .add("field2", StringType())
+  ))
+)
+
+schema == schema2
