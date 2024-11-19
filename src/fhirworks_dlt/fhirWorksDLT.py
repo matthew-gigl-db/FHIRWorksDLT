@@ -42,7 +42,8 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 class StreamingFhir(FhirResource):
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
-        resources_df = data.select(col("resource"), get_json_object("resource", "$.resourceType").alias("resourceType"))
+        resources_df = data.withColumn("resourceType", get_json_object("resource", "$.resourceType"))
+        # resources_df = data.select(col("resource"), get_json_object("resource", "$.resourceType").alias("resourceType"))
         return StreamingBundleFhirResource(resources_df.filter("upper(resourceType) == 'BUNDLE'"))
 
 class StreamingBundleFhirResource(BundleFhirResource):
