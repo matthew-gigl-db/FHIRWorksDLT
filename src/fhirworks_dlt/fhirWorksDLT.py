@@ -52,10 +52,7 @@ class StreamingBundleFhirResource(BundleFhirResource):
         return (
             self._raw_data
             .withColumn("bundle", from_json("resource", BundleFhirResource.BUNDLE_SCHEMA)) #root level schema
-            .select(BundleFhirResource.list_entry_columns(schemas) + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")] #entry[] into indvl cols and root cols timestamp & id
-            # .select(from_json("resource", BundleFhirResource.BUNDLE_SCHEMA).alias("bundle")) #root level schema
-            # .select(BundleFhirResource.list_entry_columns(schemas )#entry[] into indvl cols
-            #     + [col("bundle.timestamp"), col("bundle.id")] #root cols timestamp & id 
+            .select(BundleFhirResource.list_entry_columns(schemas) + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")] #entry[] into indvl cols and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
@@ -135,27 +132,6 @@ class ignitePipeline:
                 sdf = self.spark.readStream.table(f"{bronze_table}")
             bundle = StreamingFhir.from_raw_bundle_resource(sdf)
             return bundle.entry(fhir_custom)
-    
-    # def stage_silver(self, entry_table: str, fhir_resource: str):
-    #     @dlt.table(
-    #         name = f"{fhir_resource}_stage"
-    #         ,comment = "Staging Table for the latest streamed FHIR data recieved in bronze.  Data is staged here to prepare it for upsets into silver.  Normally temporary."
-    #         ,temporary = False
-    #         ,table_properties = {
-    #             "pipelines.autoOptimize.managed" : "true"
-    #             ,"pipelines.reset.allowed" : "true"
-    #         }
-    #     )
-    #     def stage_silver_fhir():
-    #         fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
-    #         sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
-    #         df = (
-    #             sdf
-    #             .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
-    #             .withColumn("bundle_id", col("id"))
-    #             .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col(f"{fhir_resource}.*"))
-    #         )
-    #         return df
 
     def stage_silver(
         self
@@ -174,16 +150,12 @@ class ignitePipeline:
             }
         )
         def stage_silver_fhir():
-            # fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
             if live:
                 sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
             else:
                 sdf = self.spark.readStream.table(f"{entry_table}")
-            # bundle = StreamingFhir.from_raw_bundle_resource(sdf)
-            # sdf_entry = bundle.entry(fhir_custom)
-            sdf_entry = sdf
             return (
-                sdf_entry
+                sdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col(f"{fhir_resource}.*"))
