@@ -13,7 +13,9 @@ from dbignite.fhir_resource import FhirResource
 from dbignite.fhir_resource import BundleFhirResource
 from dbignite.fhir_mapping_model import FhirSchemaModel
 
-
+##########################################
+### raw data ingestion with autoloader ###
+##########################################
 # read streaming data as whole text using autoloader    
 def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str, wholeText: bool = False, skipRows: int = 0, options: dict = None) -> DataFrame:
     stream_schema = "value STRING"
@@ -39,6 +41,9 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
+###########################
+### dbignite subclasses ###
+###########################
 class StreamingFhir(FhirResource):
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
@@ -56,8 +61,9 @@ class StreamingBundleFhirResource(BundleFhirResource):
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
-
-
+##########################################
+### ingestion pipleine class defintion ###
+##########################################
 class ignitePipeline:
 
     def __init__(
