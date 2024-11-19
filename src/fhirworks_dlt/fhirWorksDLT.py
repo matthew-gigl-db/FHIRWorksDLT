@@ -72,7 +72,9 @@ class StreamingBundleFhirResource(BundleFhirResource):
             self._raw_data
             .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA)) #root level schema
             .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
-                    + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl")] # and root cols timestamp & id, plus ingest metadata
+                    + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
+                    #    , col("bundle.entry.fullUrl")
+                    ] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
