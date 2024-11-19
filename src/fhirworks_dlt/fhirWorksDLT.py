@@ -57,6 +57,7 @@ class StreamingBundleFhirResource(BundleFhirResource):
             # .select(BundleFhirResource.list_entry_columns(schemas )#entry[] into indvl cols
             #     + [col("bundle.timestamp"), col("bundle.id")] #root cols timestamp & id 
             ).withColumn("bundleUUID", expr("uuid()"))
+        )
 
 
 
