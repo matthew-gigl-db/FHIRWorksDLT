@@ -46,17 +46,18 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 ###########################
 class StreamingFhir(FhirResource):
     # Note: Redox uses entry.fullUrl for primary keys
-    BUNDLE_SCHEMA = (
-        StructType()
-         .add("resourceType", StringType())
-         .add("entry", ArrayType(
-             StructType()
-              .add("resource", StringType())
-              .add("fullUrl", StringType())
-         ))
-         .add("id", StringType())
-         .add("timestamp", StringType())
-    )
+    # BUNDLE_SCHEMA = (
+    #     StructType()
+    #      .add("resourceType", StringType())
+    #      .add("entry", ArrayType(
+    #          StructType()
+    #           .add("resource", StringType())
+    #           .add("fullUrl", StringType())
+    #      ))
+    #      .add("id", StringType())
+    #      .add("timestamp", StringType())
+    # )
+    BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
 
     ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
     def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
@@ -70,8 +71,8 @@ class StreamingBundleFhirResource(BundleFhirResource):
         return (
             self._raw_data
             .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA)) #root level schema
-            .select(StreamingBundleFhirResource.list_entry_columns(schemas, parent_column = col("bundle.entry.resource")), StreamingBundleFhirResource.list_entry_columns(schemas, parent_column = col("bundle.entry.fullUrl")) #entry[] into indvl cols
-                    + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")] # and root cols timestamp & id, plus ingest metadata
+            .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
+                    + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl")] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
 
