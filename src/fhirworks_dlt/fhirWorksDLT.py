@@ -181,5 +181,6 @@ class ignitePipeline:
                 .withColumn("bundle_id", col("id"))
                 .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("fullUrl"), col(f"{fhir_resource}.*"))
                 .withColumnRenamed("id", f"{fhir_resource}_id".lower())
+                .withColumnRenamed("fullUrl", f"{fhir_resource}_uuid".lower())
             )
 
