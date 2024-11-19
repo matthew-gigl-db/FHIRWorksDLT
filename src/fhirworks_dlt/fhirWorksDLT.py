@@ -66,6 +66,7 @@ class StreamingFhir(FhirResource):
         return StreamingBundleFhirResource(resources_df.filter("upper(resourceType) == 'BUNDLE'"))
 
 class StreamingBundleFhirResource(BundleFhirResource):
+    FULL_BUNDLE_SCHEMA = FhirSchemaModel().custom_fhir_resource_mapping(["Bundle"])
     ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
         return (
