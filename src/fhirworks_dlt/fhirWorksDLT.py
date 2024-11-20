@@ -74,7 +74,7 @@ class StreamingBundleFhirResource(BundleFhirResource):
                 + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl"), col("bundle.entry.resource.resourceType")
                 ] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
-            .withColumn("entry_struct", arrays_zip("bundle.entry.fullUrl", "bundle.entry.resource.resourceType"))
+            # .withColumn("entry_struct", arrays_zip("bundle.entry.fullUrl", "bundle.entry.resource.resourceType"))
         )
 
 ##########################################
@@ -180,7 +180,9 @@ class ignitePipeline:
                 sdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
-                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("fullUrl"), col("entry_struct"), col(f"{fhir_resource}.*"))
+                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("fullUrl")
+                        # , col("entry_struct")
+                        , col(f"{fhir_resource}.*"))
                 .withColumnRenamed("id", f"{fhir_resource}_id".lower())
                 .withColumnRenamed("fullUrl", f"{fhir_resource}_uuid".lower())
             )
