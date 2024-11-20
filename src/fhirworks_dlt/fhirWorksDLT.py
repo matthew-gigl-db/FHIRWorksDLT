@@ -53,26 +53,36 @@ class StreamingFhir(FhirResource):
 
 class StreamingBundleFhirResource(BundleFhirResource):
     # Note: Redox uses entry.fullUrl for primary keys
-    BUNDLE_SCHEMA = (
+    # BUNDLE_SCHEMA = (
+    #     StructType()
+    #      .add("resourceType", StringType())
+    #      .add("entry", ArrayType(
+    #          StructType()
+    #           .add("resource", StringType())
+    #           .add("fullUrl", StringType())
+    #      ))
+    #      .add("id", StringType())
+    #      .add("timestamp", StringType())
+    # )
+
+    ENTRY_SCHEMA = (
         StructType()
-         .add("resourceType", StringType())
-         .add("entry", ArrayType(
+        .add("entry", ArrayType(
              StructType()
               .add("resource", StructType().add("resourceType", StringType()))
               .add("fullUrl", StringType())
          ))
-         .add("id", StringType())
-         .add("timestamp", StringType())
     )
 
     ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
     def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
         return (
             self._raw_data
-            .withColumn("bundle", from_json("resource", StreamingBundleFhirResource.BUNDLE_SCHEMA))
-            .withColumn("entry_struct", arrays_zip("bundle.entry.fullUrl", "bundle.entry.resource.resourceType")) #root level schema
-            .select(StreamingBundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
-                + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("bundle.entry.fullUrl"), col("entry_struct")
+            .withColumn("bundle", from_json("resource", BundleFhirResource.BUNDLE_SCHEMA))
+            .withColumn("entry", from_json("resource", StreamingBundleFhirResource.ENTRY_SCHEMA))
+            .withColumn("entry_struct", arrays_zip("entry.entry.fullUrl", "entry.entry.resource.resourceType")) #root level schema
+            .select(BundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
+                + [col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime"), col("entry.entry.fullUrl"), col("entry_struct")
                 ] # and root cols timestamp & id, plus ingest metadata
             ).withColumn("bundleUUID", expr("uuid()"))
         )
