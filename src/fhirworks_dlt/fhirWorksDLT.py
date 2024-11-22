@@ -194,7 +194,7 @@ class ignitePipeline:
                 sdf
                 .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
                 .withColumn("bundle_id", col("id"))
-                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime"),
+                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
                         , col("entry_struct")
                         , col(f"{fhir_resource}.*"))
                 .withColumnRenamed("id", f"{fhir_resource}_id".lower())
