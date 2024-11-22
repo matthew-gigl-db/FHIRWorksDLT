@@ -130,6 +130,7 @@ class ignitePipeline:
                 .withColumn("fullFilePath", col("_metadata.file_path"))
                 .withColumn("fileMetadata", col("_metadata"))
                 .withColumn("resource", col("value"))
+                .withColumn("resource_variant", parse_json(col("value")))
                 .select(
                     "fullFilePath"
                     ,lit(file_path).alias("datasource")
@@ -137,6 +138,7 @@ class ignitePipeline:
                     ,current_timestamp().alias("ingestTime")
                     ,current_timestamp().cast("date").alias("ingestDate")
                     ,"resource"
+                    ,"resource_variant"
                     ,"fileMetadata"
                 )
             )
