@@ -22,3 +22,21 @@ AS SELECT
 FROM
   STREAM(LIVE.fhir_bronze),
   lateral variant_explode(resource:entry) as entry
+
+-- COMMAND ----------
+
+CREATE MATERIALIZED VIEW resource_types
+TBLPROPERTIES (
+  "quality" = "silver"
+  ,"pipelines.autoOptimize.managed" = "true"
+  ,"pipelines.reset.allowed" = "true"
+  ,"delta.feature.variantType-preview" = "supported"
+)
+COMMENT 'Current Resource Types Ingested from FHIR Bundles in Bronze'
+AS SELECT
+  resourceType
+  ,COUNT(*) AS count
+FROM
+  STREAM(LIVE.fhir_bronze_parsed)
+GROUP BY
+  resourceType
