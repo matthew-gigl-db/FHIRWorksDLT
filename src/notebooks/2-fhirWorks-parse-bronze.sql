@@ -23,5 +23,5 @@ AS SELECT
   ,entry.value:resource.resourceType as resourceType
   ,entry.value:resource as resource
 FROM
-  STREAM(redox.main.fhir_bronze),
+  STREAM(LIVE.fhir_bronze),
   lateral variant_explode(resource:entry) as entry
