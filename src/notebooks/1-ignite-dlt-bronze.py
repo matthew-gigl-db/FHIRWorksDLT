@@ -38,7 +38,6 @@ Pipeline.raw_to_bronze(
     ,table_properties={
         "quality":"bronze"
         ,"source":"Redox"
-        ,"delta.feature.variantType-preview":"supported"
         ,"pipelines.autoOptimize.managed" : "true"
         ,"pipelines.reset.allowed" : "true"
     }
