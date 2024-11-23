@@ -50,11 +50,11 @@ resources:
             - task_key: available_resources
           for_each_task:
             inputs: "{{tasks.[available_resources].values.[resource_types]}}"
-            concurrency: 18
+            concurrency: 25
             task:
               task_key: parse_resource_iteration
               notebook_task:
-                notebook_path: ./src/notebooks/4-parse-resources.sql
+                notebook_path: ../src/notebooks/4-parse-resources.sql
                 base_parameters:
                   resource_type: "{{input}}"
                 warehouse_id: ${var.warehouse_id}
