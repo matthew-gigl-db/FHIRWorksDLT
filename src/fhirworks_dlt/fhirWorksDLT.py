@@ -109,6 +109,9 @@ class ignitePipeline:
         """
         Ingests all files in a volume's path to a key value pair bronze table.
         """
+        variant_support = {"delta.feature.variantType-preview":"supported"}
+        table_properties.update(variant_support)
+
         @dlt.table(
             name = table_name
             ,comment = table_comment
@@ -129,8 +132,7 @@ class ignitePipeline:
                 .withColumn("inputFilename", col("_metadata.file_name"))
                 .withColumn("fullFilePath", col("_metadata.file_path"))
                 .withColumn("fileMetadata", col("_metadata"))
-                .withColumn("resource", col("value"))
-                .withColumn("resource_variant", parse_json(col("value")))
+                .withColumn("resource", parse_json(col("value")))
                 .select(
                     "fullFilePath"
                     ,lit(file_path).alias("datasource")
@@ -138,7 +140,6 @@ class ignitePipeline:
                     ,current_timestamp().alias("ingestTime")
                     ,current_timestamp().cast("date").alias("ingestDate")
                     ,"resource"
-                    ,"resource_variant"
                     ,"fileMetadata"
                 )
             )
