@@ -15,6 +15,7 @@ AS SELECT
   fileMetadata 
   ,ingestDate
   ,ingestTime
+  ,bundleUUID
   ,CAST(resource:id AS STRING) as bundle_id
   ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
   ,resource:Meta as meta
