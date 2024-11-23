@@ -38,6 +38,12 @@ resources:
               outcome: "false"
           run_if: AT_LEAST_ONE_SUCCESS
 
+        - task_key: available_resources
+          notebook_task:
+            notebook_path: ../src/notebooks/3-available-resources.py
+          depends_on:
+            - task_key: fhirWorks_dlt_pipeline_bronze
+
         # - task_key: fhirWorks_dlt_pipeline_silver_core
         #   pipeline_task:
         #     pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_core.id}
