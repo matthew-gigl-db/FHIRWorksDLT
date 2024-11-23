@@ -1,5 +1,8 @@
 -- Databricks notebook source
 CREATE OR REFRESH STREAMING TABLE fhir_bronze_parsed
+CLUSTER BY (
+  bundle_id
+)
 TBLPROPERTIES (
   "quality" = "bronze"
   ,"source" = "Redox"
@@ -39,3 +42,5 @@ FROM
   LIVE.fhir_bronze_parsed
 GROUP BY
   resourceType
+ORDER BY 
+  count DESC
