@@ -12,6 +12,8 @@ resources:
       libraries:
         - notebook:
             path: ../src/notebooks/1-ignite-dlt-bronze.py
+        - notebook:
+            path: ../src/notebooks/2-fhirWorks-parse-bronze.sql
       target: ${var.schema}
       development: true
       photon: true
