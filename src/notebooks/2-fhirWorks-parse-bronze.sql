@@ -21,10 +21,13 @@ AS SELECT
   ,resource:Meta as meta
   ,CAST(entry.value:fullUrl AS STRING) as fullUrl
   ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
-  ,entry.value:resource as resource
+  -- ,entry.value:resource as resource
+  ,resource_data.key as key
+  ,resource_data.value as value
 FROM
   STREAM(LIVE.fhir_bronze),
-  lateral variant_explode(resource:entry) as entry
+  lateral variant_explode(resource:entry) as entry,
+  lateral variant_explode(entry.value:resource) as resource_data 
 
 -- COMMAND ----------
 
