@@ -1,22 +1,22 @@
-# The main pipeline for dlt_dropbox
-resources:
-  pipelines:
-    fhirWorks_dlt_silver_core:
-      name: fhirWorks_dlt_silver_core
-      configuration:
-        bundle.sourcePath: ${workspace.file_path}/src
-        bundle.fixturePath: ${workspace.file_path}/fixtures
-        workflow_inputs.source_catalog: ${var.catalog}
-        workflow_inputs.source_schema: ${var.schema}
-        workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
-        workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
-        workflow.inputs.fhir_schemas: ${var.us_core_schemas}
-      libraries:
-        - notebook:
-            path: ../src/notebooks/2-ignite-dlt-silver.py
-      target: ${var.schema}
-      development: true
-      photon: true
-      channel: PREVIEW
-      catalog: ${var.catalog}
-      serverless: true
+# # The main pipeline for dlt_dropbox
+# resources:
+#   pipelines:
+#     fhirWorks_dlt_silver_core:
+#       name: fhirWorks_dlt_silver_core
+#       configuration:
+#         bundle.sourcePath: ${workspace.file_path}/src
+#         bundle.fixturePath: ${workspace.file_path}/fixtures
+#         workflow_inputs.source_catalog: ${var.catalog}
+#         workflow_inputs.source_schema: ${var.schema}
+#         workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
+#         workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
+#         workflow.inputs.fhir_schemas: ${var.us_core_schemas}
+#       libraries:
+#         - notebook:
+#             path: ../src/notebooks/2-ignite-dlt-silver.py
+#       target: ${var.schema}
+#       development: true
+#       photon: true
+#       channel: PREVIEW
+#       catalog: ${var.catalog}
+#       serverless: true
