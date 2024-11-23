@@ -24,7 +24,7 @@ FROM
 
 -- COMMAND ----------
 
-CREATE MATERIALIZED VIEW resource_types
+CREATE OR REFRESH MATERIALIZED VIEW resource_types
 TBLPROPERTIES (
   "quality" = "silver"
   ,"pipelines.autoOptimize.managed" = "true"
@@ -36,6 +36,6 @@ AS SELECT
   resourceType
   ,COUNT(*) AS count
 FROM
-  STREAM(LIVE.fhir_bronze_parsed)
+  LIVE.fhir_bronze_parsed
 GROUP BY
   resourceType
