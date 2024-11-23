@@ -22,6 +22,7 @@ AS SELECT
   ,CAST(entry.value:fullUrl AS STRING) as fullUrl
   ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
   -- ,entry.value:resource as resource
+  ,resource_data.pos as pos
   ,resource_data.key as key
   ,resource_data.value as value
 FROM

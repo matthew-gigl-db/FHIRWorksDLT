@@ -17,6 +17,7 @@ AS SELECT DISTINCT
   ,ingestDate
   ,ingestTime
   ,bundle_id
+  ,meta_exploded.pos as pos
   ,meta_exploded.key as key
   ,meta_exploded.value as value
 FROM
