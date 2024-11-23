@@ -20,6 +20,7 @@ targets:
     variables: 
       catalog: redox
       schema: main
+      warehouse_id: d1184b8c2a8a87eb
 
   dev_aws:
     mode: development
@@ -71,4 +72,7 @@ variables:
   ext_schemas: 
     description:  List of FHIR schemas that are not part of the US Core set.  Note that this default value is overriden by the the "pipeline controller" notebook during execution.  
     default: Claim
+  warehouse_id:
+    description: The Databricks SQL warehouse used for running SQL notebooks.  
+    default: d1184b8c2a8a87eb
 

@@ -11,25 +11,46 @@ SET VARIABLE resource_type = :resource_type;
 
 -- COMMAND ----------
 
-SELECT catalog_use, schema_use, resource_type;
+DECLARE OR REPLACE VARIABLE resource_lower STRING DEFAULT lower(resource_type);
 
 -- COMMAND ----------
 
-DECLARE OR REPLACE VARIABLE strm_sql_stmnt STRING;
+SELECT catalog_use, schema_use, resource_type, resource_lower;
 
-SET VARIABLE strm_sql_stmnt = "
-  CREATE OR REFRESH STREAMING TABLE " || catalog_use || "." || schema_use || "." || resource_type || " 
-  CLUSTER BY (
-  bundle_id
-  )
+-- COMMAND ----------
+
+DECLARE OR REPLACE VARIABLE sql_stmnt STRING;
+
+SET VARIABLE sql_stmnt = "
+  CREATE OR REFRESH STREAMING TABLE " || catalog_use || "." || schema_use || "." || resource_lower || "_entry 
   TBLPROPERTIES (
     'quality' = 'bronze'
     ,'source' = 'Redox'
+    ,'pipelines.channel' = 'preview'
     ,'pipelines.autoOptimize.managed' = 'true'
     ,'pipelines.reset.allowed' = 'true'
     ,'delta.feature.variantType-preview' = 'supported'
   )
-  COMMENT '" ||   resource_type || " resource entry parsing from streaming FHIR bundles data.'
+  COMMENT '" ||   resource_type || " resource type entry parsing from streaming FHIR bundles data.'
   AS SELECT
-    
+    bundle_id
+    ,bundle_timestamp
+    ,bundleUUID
+    ,fullUrl as " || resource_lower || "_uuid
+    ,resource_exploded.key as key
+    ,resource_exploded.value as value
+  FROM 
+    STREAM(" || catalog_use || "." || schema_use || ".fhir_bronze_parsed)
+    ,lateral variant_explode(resource) as resource_exploded
+  WHERE
+    resourceType = '" || resource_type || "'
+  ;
   "
+
+-- COMMAND ----------
+
+SELECT sql_stmnt;
+
+-- COMMAND ----------
+
+EXECUTE IMMEDIATE sql_stmnt;
