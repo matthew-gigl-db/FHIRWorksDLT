@@ -12,12 +12,11 @@ AS SELECT
   fileMetadata 
   ,ingestDate
   ,ingestTime
-  ,resource:id as bundle_id
-  ,resource:timestamp as bundle_timestamp
+  ,CAST(resource:id AS STRING) as bundle_id
+  ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
   ,resource:Meta as meta
-  ,entry.value as entry
-  ,entry.value:fullUrl as fullUrl
-  ,entry.value:resource.resourceType as resourceType
+  ,CAST(entry.value:fullUrl AS STRING) as fullUrl
+  ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
   ,entry.value:resource as resource
 FROM
   STREAM(LIVE.fhir_bronze),
