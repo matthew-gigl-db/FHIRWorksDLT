@@ -41,7 +41,7 @@ TBLPROPERTIES (
 COMMENT 'Current Resource Types Ingested from FHIR Bundles in Bronze'
 AS SELECT
   resourceType
-  ,COUNT(distinct bunddleUUID) AS bundle_count
+  ,COUNT(distinct bundleUUID) AS bundle_count
 FROM
   LIVE.fhir_bronze_parsed
 GROUP BY
