@@ -40,7 +40,7 @@ resources:
 
         - task_key: available_resources
           notebook_task:
-            notebook_path: ../src/notebooks/3-available-resources.py
+            notebook_path: ../src/notebooks/2-available-resources.py
           depends_on:
             - task_key: fhirWorks_dlt_pipeline_bronze
 
@@ -54,7 +54,7 @@ resources:
             task:
               task_key: parse_resource_iteration
               notebook_task:
-                notebook_path: ../src/notebooks/4-parse-resources.sql
+                notebook_path: ../src/notebooks/3-parse-resources.sql
                 base_parameters:
                   resource_type: "{{input}}"
                 warehouse_id: ${var.warehouse_id}
