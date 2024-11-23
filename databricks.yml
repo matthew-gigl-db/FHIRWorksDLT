@@ -4,7 +4,8 @@ bundle:
   name: FHIRWorksDLT
 
 include:
-  - resources/*.yml
+  - resources/*.job.yml
+  - resources/*.pipeline.yml
 
 targets:
   dev_azure:
@@ -19,6 +20,7 @@ targets:
     variables: 
       catalog: redox
       schema: main
+      warehouse_id: d1184b8c2a8a87eb
 
   dev_aws:
     mode: development
@@ -64,4 +66,13 @@ variables:
   run_setup:
     description: Set to 'true' if the '0-setup' notebook task should be run to create the catalog, schema, and volume required to execute the rest of the workflow.  Note that the external location and storage credential must be set up ahead of time.  Set to 'false' to skip the the '0-setup' notebook task and proceed directly to the FHIR ingestion pipeline. 
     default: false 
+  us_core_schemas:
+    description: List of the core FHIR schemas prevalent in the United States. Note that this default value is overriden by the the "pipeline controller" notebook during execution.  
+    default: AllergyIntolerance,Provenance,Organization,Encounter,Medication,Practitioner,Condition,RelatedPerson,DocumentReference,QuestionnaireResponse,CareTeam,Coverage,Observation,Goal,CarePlan,ServiceRequest,Questionnaire,MedicationDispense,Immunization,Patient,Specimen,Device,DiagnosticReport,Location,MedicationRequest,Procedure
+  ext_schemas: 
+    description:  List of FHIR schemas that are not part of the US Core set.  Note that this default value is overriden by the the "pipeline controller" notebook during execution.  
+    default: Claim
+  warehouse_id:
+    description: The Databricks SQL warehouse used for running SQL notebooks.  
+    default: d1184b8c2a8a87eb
 

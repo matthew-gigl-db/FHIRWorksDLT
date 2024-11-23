@@ -35,8 +35,20 @@ Pipeline = fhirWorksDLT.ignitePipeline(
 Pipeline.raw_to_bronze(
     table_name="fhir_bronze"
     ,table_comment=f"A full text record of every FHIR JSON file recieved from Redox and located in {volume_path}."
-    ,table_properties={"quality":"bronze", "source":"Redox", "delta.feature.variantType-preview":"supported"}
+    ,table_properties={
+        "quality":"bronze"
+        ,"source":"Redox"
+        ,"pipelines.autoOptimize.managed" : "true"
+        ,"pipelines.reset.allowed" : "true"
+    }
     ,source_folder_path_from_volume=source_folder_path_from_volume
     ,maxFiles = 1000
     ,maxBytes = "20g"
 )
+
+# COMMAND ----------
+
+# Pipeline.fhir_entry(
+#   bronze_table="fhir_bronze"
+#   ,temporary = False
+# )
