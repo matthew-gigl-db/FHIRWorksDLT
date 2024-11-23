@@ -1,15 +1,11 @@
 -- Databricks notebook source
 CREATE OR REFRESH STREAMING TABLE fhir_bronze_parsed
-CLUSTER BY (
-  bundle_id
-)
 TBLPROPERTIES (
   "quality" = "bronze"
   ,"source" = "Redox"
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
-  ,'delta.dataSkippingStatsColumns' = 'bundle_id'
 )
 COMMENT "Parsed streaming FHIR bundle data ingested from bronze."
 AS SELECT
