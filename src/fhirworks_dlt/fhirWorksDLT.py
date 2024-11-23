@@ -109,7 +109,7 @@ class ignitePipeline:
         """
         Ingests all files in a volume's path to a key value pair bronze table.
         """
-        variant_support = {"delta.feature.variantType-preview":"supported"}
+        variant_support = {"delta.feature.variantType-preview" : "supported"}
         table_properties.update(variant_support)
 
         @dlt.table(
@@ -144,6 +144,20 @@ class ignitePipeline:
                 )
             )
             return bronze_df
+        
+    def parse_bundle(
+        self
+        ,bronze_table: str
+        ,live: bool = True
+        ,temporary: bool = True
+        ,table_properties: dict = {
+            "pipelines.autoOptimize.managed" : "true"
+            ,"pipelines.reset.allowed" : "true"
+            ,"delta.feature.variantType-preview" : "supported"
+        }):
+        @dlt.table(
+            
+        )
         
     def fhir_entry(
         self
