@@ -33,7 +33,7 @@ FROM
 
 CREATE OR REFRESH MATERIALIZED VIEW resource_types
 TBLPROPERTIES (
-  "quality" = "silver"
+  "quality" = "gold"
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
@@ -47,4 +47,4 @@ FROM
 GROUP BY
   resourceType
 ORDER BY 
-  count DESC
+  bundle_count DESC
