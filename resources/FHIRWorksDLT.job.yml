@@ -44,20 +44,20 @@ resources:
           depends_on:
             - task_key: fhirWorks_dlt_pipeline_bronze
 
-        - task_key: parse_resources
-          description: Loop through only the available resources received from the FHIR bundles and parse their entries using explode_variant.    
-          depends_on:
-            - task_key: available_resources
-          for_each_task:
-            inputs: "{{tasks.[available_resources].values.[resource_types]}}"
-            concurrency: 25
-            task:
-              task_key: parse_resource_iteration
-              notebook_task:
-                notebook_path: ../src/notebooks/3-parse-resources.sql
-                base_parameters:
-                  resource_type: "{{input}}"
-                warehouse_id: ${var.warehouse_id}
+        # - task_key: parse_resources
+        #   description: Loop through only the available resources received from the FHIR bundles and parse their entries using explode_variant.    
+        #   depends_on:
+        #     - task_key: available_resources
+        #   for_each_task:
+        #     inputs: "{{tasks.[available_resources].values.[resource_types]}}"
+        #     concurrency: 25
+        #     task:
+        #       task_key: parse_resource_iteration
+        #       notebook_task:
+        #         notebook_path: ../src/notebooks/3-parse-resources.sql
+        #         base_parameters:
+        #           resource_type: "{{input}}"
+        #         warehouse_id: ${var.warehouse_id}
 
         # - task_key: fhirWorks_dlt_pipeline_silver_core
         #   pipeline_task:
