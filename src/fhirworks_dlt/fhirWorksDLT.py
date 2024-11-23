@@ -156,8 +156,31 @@ class ignitePipeline:
             ,"delta.feature.variantType-preview" : "supported"
         }):
         @dlt.table(
-            
+            name = f"{bronze_table}_parsed"
+            ,comment = f"Parsed streaming FHIR bundle data ingested from bronze. Normally temporary."
+            ,temporary = temporary
+            ,table_properties = table_properties
         )
+        def parse_bundle_as_variant():
+            sql_stmt = f"""
+                select
+                    fileMetadata 
+                    ,ingestDate
+                    ,ingestTime
+                    ,resource_variant
+                    ,resource_variant:id as bundle_id
+                    ,resource_variant:timestamp as bundle_timestamp
+                    ,resource_variant:Meta as meta
+                    ,resource_variant:Meta.Destinations[0].Name as destination
+                    ,entry.value as entry
+                    ,entry.value:fullUrl as fullUrl
+                    ,entry.value:resource.resourceType as resourceType
+                    ,entry.value:resource as resource
+                from 
+                    fhir_bronze,
+                    lateral variant_explode(resource_variant:entry) as entry
+                ;
+            """
         
     def fhir_entry(
         self
