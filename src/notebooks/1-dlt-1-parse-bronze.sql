@@ -9,6 +9,7 @@ TBLPROPERTIES (
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
+  ,"delta.enableChangeDataFeed" = "true"
 )
 COMMENT "Parsed streaming FHIR bundle data ingested from bronze."
 AS SELECT
@@ -21,16 +22,20 @@ AS SELECT
   ,resource:Meta as meta
   ,CAST(entry.value:fullUrl AS STRING) as fullUrl
   ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
-  ,entry.value:resource as resource
+  -- ,entry.value:resource as resource
+  ,resource_data.pos as pos
+  ,resource_data.key as key
+  ,resource_data.value as value
 FROM
   STREAM(LIVE.fhir_bronze),
-  lateral variant_explode(resource:entry) as entry
+  lateral variant_explode(resource:entry) as entry,
+  lateral variant_explode(entry.value:resource) as resource_data 
 
 -- COMMAND ----------
 
 CREATE OR REFRESH MATERIALIZED VIEW resource_types
 TBLPROPERTIES (
-  "quality" = "silver"
+  "quality" = "gold"
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
@@ -38,10 +43,10 @@ TBLPROPERTIES (
 COMMENT 'Current Resource Types Ingested from FHIR Bundles in Bronze'
 AS SELECT
   resourceType
-  ,COUNT(*) AS count
+  ,COUNT(distinct bundleUUID) AS raw_bundle_count
 FROM
   LIVE.fhir_bronze_parsed
 GROUP BY
   resourceType
 ORDER BY 
-  count DESC
+  raw_bundle_count DESC

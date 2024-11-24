@@ -146,62 +146,103 @@ class ignitePipeline:
             )
             return bronze_df
         
-
-        
-    def fhir_entry(
+    def meta_stage_silver(
         self
-        ,bronze_table: str
-        ,fhir_resource: str
-        ,live: bool = True
-        ,temporary: bool = True
-        ,table_properties: dict = {
-            "pipelines.autoOptimize.managed" : "true"
-            ,"pipelines.reset.allowed" : "true"
-        }):
-        @dlt.table(
-            name = f"{fhir_resource}_entry".lower()
-            ,comment = f"FHIR bundle '{fhir_resource}' entry transformations on streaming FHIR data from bronze. Normally temporary."
-            ,temporary = temporary
-            ,table_properties = table_properties
-        )
-        def bundle_entry():
-            fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
-            if live:
-                sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
-            else:
-                sdf = self.spark.readStream.table(f"{bronze_table}")
-            bundle = StreamingFhir.from_raw_bundle_resource(sdf)
-            return bundle.entry(fhir_custom)
-
-    def stage_silver(
-        self
-        ,entry_table: str
-        ,fhir_resource: str
+        ,parsed_variant_meta_table: str
         ,live: bool = True
         ,temporary: bool = True
         ):
         @dlt.table(
-            name = f"{fhir_resource}_stage".lower()
-            ,comment = f"Staging Table for the latest streamed '{fhir_resource}' FHIR resource data recieved in bronze.  Data is staged here to prepare it for upserts into final silver tables.  Normally temporary."
+            name = f"bundle_meta_stage".lower()
+            ,comment = f"Staging Table for the latest streamed bundle metadata from the FHIR resource data recieved in bronze and variant exploded. This stage table transposes the exploded variant data wide for easier access.  Normally temporary."
             ,temporary = temporary
             ,table_properties = {
                 "pipelines.autoOptimize.managed" : "true"
                 ,"pipelines.reset.allowed" : "true"
+                ,"delta.feature.variantType-preview" : "supported"
             }
         )
-        def stage_silver_fhir():
+        def stage_meta():
             if live:
-                sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
+                src_tbl_name = f"LIVE.{parsed_variant_meta_table}"
             else:
-                sdf = self.spark.readStream.table(f"{entry_table}")
+                src_tbl_name = f"{parsed_variant_meta_table}"
+
+            sdf = self.spark.readStream.table(src_tbl_name)
+            grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value"]]
+
+            # distinct_keys = self.spark.table(src_tbl_name).select("key").distinct().collect()
+            # distinct_keys = sorted([row.key for row in distinct_keys])
+
+            distinct_keys = ['DataModel','Destinations','EventDateTime','EventType','FacilityCode','Logs','Message','Source','Test','Transmission']
+
             return (
                 sdf
-                .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
-                .withColumn("bundle_id", col("id"))
-                .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-                        , col("entry_struct")
-                        , col(f"{fhir_resource}.*"))
-                .withColumnRenamed("id", f"{fhir_resource}_id".lower())
-                .withColumn(f"{fhir_resource}_uuid".lower(), expr(f"filter(entry_struct, x -> x.resourceType == '{fhir_resource}')[0].fullUrl"))
+                .groupBy(*grouping_cols)
+                .agg(
+                    *[element_at(
+                        collect_list(when(col("key") == k, col("value"))), 1
+                    ).alias(k) for k in distinct_keys]
+                )
             )
+
+
+
+        
+    # def fhir_entry(
+    #     self
+    #     ,bronze_table: str
+    #     ,fhir_resource: str
+    #     ,live: bool = True
+    #     ,temporary: bool = True
+    #     ,table_properties: dict = {
+    #         "pipelines.autoOptimize.managed" : "true"
+    #         ,"pipelines.reset.allowed" : "true"
+    #     }):
+    #     @dlt.table(
+    #         name = f"{fhir_resource}_entry".lower()
+    #         ,comment = f"FHIR bundle '{fhir_resource}' entry transformations on streaming FHIR data from bronze. Normally temporary."
+    #         ,temporary = temporary
+    #         ,table_properties = table_properties
+    #     )
+    #     def bundle_entry():
+    #         fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
+    #         if live:
+    #             sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
+    #         else:
+    #             sdf = self.spark.readStream.table(f"{bronze_table}")
+    #         bundle = StreamingFhir.from_raw_bundle_resource(sdf)
+    #         return bundle.entry(fhir_custom)
+
+    # def stage_silver(
+    #     self
+    #     ,entry_table: str
+    #     ,fhir_resource: str
+    #     ,live: bool = True
+    #     ,temporary: bool = True
+    #     ):
+    #     @dlt.table(
+    #         name = f"{fhir_resource}_stage".lower()
+    #         ,comment = f"Staging Table for the latest streamed '{fhir_resource}' FHIR resource data recieved in bronze.  Data is staged here to prepare it for upserts into final silver tables.  Normally temporary."
+    #         ,temporary = temporary
+    #         ,table_properties = {
+    #             "pipelines.autoOptimize.managed" : "true"
+    #             ,"pipelines.reset.allowed" : "true"
+    #         }
+    #     )
+    #     def stage_silver_fhir():
+    #         if live:
+    #             sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
+    #         else:
+    #             sdf = self.spark.readStream.table(f"{entry_table}")
+    #         return (
+    #             sdf
+    #             .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
+    #             .withColumn("bundle_id", col("id"))
+    #             .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
+    #                     , col("entry_struct")
+    #                     , col(f"{fhir_resource}.*"))
+    #             .withColumnRenamed("id", f"{fhir_resource}_id".lower())
+    #             .withColumn(f"{fhir_resource}_uuid".lower(), expr(f"filter(entry_struct, x -> x.resourceType == '{fhir_resource}')[0].fullUrl"))
+    #         )
 
