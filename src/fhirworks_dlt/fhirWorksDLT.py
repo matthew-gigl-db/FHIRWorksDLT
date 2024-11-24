@@ -174,16 +174,7 @@ class ignitePipeline:
             # distinct_keys = self.spark.table(src_tbl_name).select("key").distinct().collect()
             # distinct_keys = sorted([row.key for row in distinct_keys])
 
-              distinct_keys = ['DataModel',
-                'Destinations',
-                'EventDateTime',
-                'EventType',
-                'FacilityCode',
-                'Logs',
-                'Message',
-                'Source',
-                'Test',
-                'Transmission']
+            distinct_keys = ['DataModel','Destinations','EventDateTime','EventType','FacilityCode','Logs','Message','Source','Test','Transmission']
 
             return (
                 sdf
