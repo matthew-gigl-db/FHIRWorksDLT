@@ -16,6 +16,8 @@ resources:
             path: ../src/notebooks/1-dlt-1-parse-bronze.sql
         - notebook:
             path: ../src/notebooks/1-dlt-2-bundle-meta.sql
+        - notebook:
+            path: ../src/notebooks/1-dlt-3-silver-stage.py
       target: ${var.schema}
       development: true
       photon: true
