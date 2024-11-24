@@ -25,7 +25,7 @@ Pipeline = fhirWorksDLT.ignitePipeline(
 # COMMAND ----------
 
 Pipeline.meta_stage_silver(
-  parsed_variant_meta_table: "bundle_meta_parsed"
-  ,live: bool = True
-  ,temporary: bool = False
+  parsed_variant_meta_table = "bundle_meta_parsed"
+  ,live = True
+  ,temporary = False
 )
