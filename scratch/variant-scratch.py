@@ -46,4 +46,54 @@ display(tdf)
 
 # COMMAND ----------
 
+cdc_df = spark.readStream.format("delta").option("readChangeData", "true").table("bundle_meta_parsed")
+
+# COMMAND ----------
+
+tcdf = cdc_df.groupBy(*grouping_cols).pivot("key").agg(first("value"))
+
+# COMMAND ----------
+
+distinct_keys = df.select("key").distinct().collect()
+distinct_keys = sorted([row.key for row in distinct_keys])
+distinct_keys
+
+# COMMAND ----------
+
+distinct_keys = sorted(distinct_keys)
+distinct_keys
+
+# COMMAND ----------
+
+from pyspark.sql.functions import *
+
+tdf2 = (
+  df
+  .groupBy(*grouping_cols)
+  .agg(*[element_at(collect_list(when(col("key") == k, col("value"))), 1).alias(k) for k in distinct_keys])
+)
+
+# COMMAND ----------
+
 display(tdf2)
+
+# COMMAND ----------
+
+stream_tdf = (
+  spark.readStream.table("bundle_meta_parsed")
+  .groupBy(*grouping_cols)
+  .agg(
+    *[element_at(
+      collect_list(when(col("key") == k, col("value"))), 1
+    ).alias(k) for k in distinct_keys]
+  )
+)
+
+# COMMAND ----------
+
+display(stream_tdf)
+
+# COMMAND ----------
+
+tdf_minus_tdf2 = tdf.select(*tdf2.columns).subtract(tdf2)
+display(tdf_minus_tdf2)
