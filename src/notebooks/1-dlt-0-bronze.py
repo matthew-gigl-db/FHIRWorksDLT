@@ -40,6 +40,7 @@ Pipeline.raw_to_bronze(
         ,"source":"Redox"
         ,"pipelines.autoOptimize.managed" : "true"
         ,"pipelines.reset.allowed" : "true"
+        ,"delta.enableChangeDataFeed" = "true"
     }
     ,source_folder_path_from_volume=source_folder_path_from_volume
     ,maxFiles = 1000
