@@ -23,7 +23,14 @@ resources
 from pyspark.sql.functions import explode, col, collect_set
 
 resource_key_table = f"{source_catalog}.{source_schema}.resource_type_keys"
-resource_keys = spark.table(resource_key_table).groupBy("resourceType").agg(collect_set("key").alias("keys"))
+
+resource_keys = (
+  spark.table(resource_key_table)
+  .filter(col("key") != "resourceType")
+  .groupBy("resourceType")
+  .agg(collect_set("key").alias("keys"))
+)
+
 resource_keys_dict = {row['resourceType']: row['keys'] for row in resource_keys.collect()}
 resource_keys_dict
 
