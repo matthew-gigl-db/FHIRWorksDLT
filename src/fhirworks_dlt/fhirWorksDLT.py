@@ -139,7 +139,7 @@ class silverPipeline(fhirWorksDLTPipeline):
         ,temporary: bool = True
         ):
         @dlt.table(
-            name = f"{resource}_stage".lower()
+            name = f"{resource}_stage"
             ,comment = f"Staging Table for the latest streamed bundle {resource} data from the FHIR resource data recieved in bronze and variant exploded. This stage table transposes the exploded variant data wide for easier access.  Normally temporary."
             ,temporary = temporary
             ,table_properties = {
@@ -154,7 +154,7 @@ class silverPipeline(fhirWorksDLTPipeline):
             else:
                 src_tbl_name = f"{parsed_variant_resource_table}"
 
-            sdf = self.spark.readStream.table(src_tbl_name).filter(col("resourceType") == resource).withColumnRenamed("fullUrl", f"{resource}_uuid".lower())
+            sdf = self.spark.readStream.table(src_tbl_name).filter(col("resourceType") == resource).withColumnRenamed("fullUrl", f"{resource}_uuid")
             grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value", "fileMetadata", "ingestDate", "ingestTime", "bundle_id", "resourceType"]]
 
             return (

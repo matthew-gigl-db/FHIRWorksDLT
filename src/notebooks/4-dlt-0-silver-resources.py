@@ -56,7 +56,7 @@ for resource_type in resources:
 
 for resource_type in resources:
   Pipeline.stream_silver_apply_changes(
-    source = f"{resource_type}_stage".lower()
+    source = f"{resource_type}_stage"
     ,target = f"{resource_type}"
     ,keys = ["bundleUUID", f"{resource_type}_uuid"] # for now-- need to look for other ids with Redox
     ,sequence_by = "bundle_timestamp"
