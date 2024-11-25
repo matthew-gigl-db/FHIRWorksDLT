@@ -13,10 +13,10 @@ TBLPROPERTIES (
 )
 COMMENT "Exploded Paresed FHIR Bundle Meta Data to Prepare for Stage Silver."
 AS SELECT
-  fileMetadata 
+  bundleUUID
+  ,fileMetadata 
   ,ingestDate
   ,ingestTime
-  ,bundleUUID
   ,CAST(resource:id AS STRING) as bundle_id
   ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
   ,meta_exploded.pos as pos
