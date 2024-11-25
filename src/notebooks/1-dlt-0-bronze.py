@@ -26,7 +26,7 @@ import fhirWorksDLT
 # COMMAND ----------
 
 Pipeline = fhirWorksDLT.bronzePipeline(
-    # spark = spark,
+    spark = spark,
     volume = volume_path
 )
 
