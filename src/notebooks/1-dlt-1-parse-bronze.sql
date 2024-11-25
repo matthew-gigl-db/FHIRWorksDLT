@@ -1,5 +1,5 @@
 -- Databricks notebook source
-CREATE OR REFRESH STREAMING TABLE fhir_bronze_parsed
+CREATE OR REFRESH STREAMING TABLE resources_parsed
 CLUSTER BY (
   bundle_id
 )
@@ -19,7 +19,6 @@ AS SELECT
   ,bundleUUID
   ,CAST(resource:id AS STRING) as bundle_id
   ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
-  ,resource:Meta as meta
   ,CAST(entry.value:fullUrl AS STRING) as fullUrl
   ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
   ,resource_data.pos as pos

@@ -19,7 +19,6 @@ AS SELECT
   ,bundleUUID
   ,CAST(resource:id AS STRING) as bundle_id
   ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
-  ,resource:Meta as meta
   ,meta_exploded.pos as pos
   ,meta_exploded.key as key
   ,meta_exploded.value as value
