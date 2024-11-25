@@ -11,7 +11,7 @@ resources:
         workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
       libraries:
         - notebook:
-            path: ../src/notebooks/3-dlt-0-silver-stage.py
+            path: ../src/notebooks/3-dlt-0-silver-meta-stage.py
       target: ${var.schema}
       development: true
       photon: true
