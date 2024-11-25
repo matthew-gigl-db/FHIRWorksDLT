@@ -154,7 +154,12 @@ class silverPipeline(fhirWorksDLTPipeline):
             else:
                 src_tbl_name = f"{parsed_variant_resource_table}"
 
-            sdf = self.spark.readStream.table(src_tbl_name).filter(col("resourceType") == resource).withColumnRenamed("fullUrl", f"{resource}_uuid").filter(col("key") NOT IN ["resourceType"])
+            sdf = (
+                self.spark.readStream.table(src_tbl_name)
+                .filter(col("resourceType") == resource)
+                .filter(col("key") != "resourceType")
+                .withColumnRenamed("fullUrl", f"{resource}_uuid")
+            )
             grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value", "fileMetadata", "ingestDate", "ingestTime", "bundle_id", "resourceType"]]
 
             return (
