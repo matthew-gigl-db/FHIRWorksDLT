@@ -106,6 +106,7 @@ class silverPipeline(Pipeline):
     def meta_stage_silver(
         self
         ,parsed_variant_meta_table: str
+        ,meta_key_table: str
         ,live: bool = True
         ,temporary: bool = True
         ):
@@ -128,7 +129,7 @@ class silverPipeline(Pipeline):
             sdf = self.spark.readStream.table(src_tbl_name)
             grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value"]]
 
-            distinct_keys = self.spark.table(src_tbl_name).select("key").distinct().collect()
+            distinct_keys = self.spark.table(meta_key_table).select("key").distinct().collect()
             distinct_keys = sorted([row.key for row in distinct_keys])
 
             # distinct_keys = ['DataModel','Destinations','EventDateTime','EventType','FacilityCode','Logs','Message','Source','Test','Transmission']
