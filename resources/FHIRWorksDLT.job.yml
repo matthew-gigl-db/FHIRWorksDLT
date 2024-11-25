@@ -44,7 +44,7 @@ resources:
           depends_on:
             - task_key: fhirWorks_dlt_pipeline_bronze
 
-        - task_key: fhirWorks_dlt_pipeline_silver
+        - task_key: fhirWorks_dlt_pipeline_meta_silver
           pipeline_task:
             pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_meta.id}
           depends_on:
