@@ -9,18 +9,39 @@ TBLPROPERTIES (
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
-  ,"delta.enableChangeDataFeed" = "true"
+  -- ,"delta.enableChangeDataFeed" = "true"
 )
 COMMENT "Exploded Paresed FHIR Bundle Meta Data to Prepare for Stage Silver."
-AS SELECT DISTINCT
+AS SELECT
   bundleUUID
-  ,fileMetadata
+  ,fileMetadata 
   ,ingestDate
   ,ingestTime
-  ,bundle_id
+  ,CAST(resource:id AS STRING) as bundle_id
+  ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
   ,meta_exploded.pos as pos
   ,meta_exploded.key as key
   ,meta_exploded.value as value
 FROM
-  STREAM(LIVE.fhir_bronze_parsed),
-  lateral variant_explode(meta) as meta_exploded
+  STREAM(LIVE.fhir_bronze),
+  lateral variant_explode(resource:Meta) as meta_exploded
+
+-- COMMAND ----------
+
+CREATE OR REFRESH MATERIALIZED VIEW meta_keys
+TBLPROPERTIES (
+  "quality" = "gold"
+  ,"pipelines.autoOptimize.managed" = "true"
+  ,"pipelines.reset.allowed" = "true"
+  ,"delta.feature.variantType-preview" = "supported"
+)
+COMMENT 'Keys Used in the Bundle Meta Data'
+AS SELECT
+  key
+  ,COUNT(distinct bundleUUID) AS raw_bundle_count
+FROM
+  LIVE.bundle_meta_parsed
+GROUP BY
+  key
+ORDER BY 
+  key

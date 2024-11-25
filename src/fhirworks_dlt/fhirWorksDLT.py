@@ -3,15 +3,6 @@ from pyspark.sql.functions import *
 from pyspark.sql import DataFrame
 from pyspark.sql.types import *
 from pyspark.sql.session import SparkSession
-from pyspark.sql.streaming import DataStreamReader, DataStreamWriter
-from typing import Callable
-import os
-import pandas as pd
-from databricks.sdk import WorkspaceClient
-from databricks.sdk.runtime import *
-from dbignite.fhir_resource import FhirResource
-from dbignite.fhir_resource import BundleFhirResource
-from dbignite.fhir_mapping_model import FhirSchemaModel
 import uuid
 
 ##########################################
@@ -42,69 +33,19 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
-###########################
-### dbignite subclasses ###
-###########################
-class StreamingFhir(FhirResource):
-    ### Note:  The FHIR resource must only contain only the "BUNDLE" resource type.  
-    def from_raw_bundle_resource(data: DataFrame) -> "FhirResource":
-        resources_df = data.withColumn("resourceType", get_json_object("resource", "$.resourceType"))
-        # resources_df = data.select(col("resource"), get_json_object("resource", "$.resourceType").alias("resourceType"))
-        return StreamingBundleFhirResource(resources_df.filter("upper(resourceType) == 'BUNDLE'"))
+class fhirWorksDLTPipeline:
 
-class StreamingBundleFhirResource(BundleFhirResource):
-    # Note: Redox uses entry.fullUrl for primary keys
-    # BUNDLE_SCHEMA = (
-    #     StructType()
-    #      .add("resourceType", StringType())
-    #      .add("entry", ArrayType(
-    #          StructType()
-    #           .add("resource", StringType())
-    #           .add("fullUrl", StringType())
-    #      ))
-    #      .add("id", StringType())
-    #      .add("timestamp", StringType())
-    # )
-
-    ENTRY_SCHEMA = (
-        StructType()
-        .add("entry", ArrayType(
-             StructType()
-              .add("resource", StructType().add("resourceType", StringType()))
-              .add("fullUrl", StringType())
-         ))
-    )
-
-    ### Note:  Extends the BundleFhirResource class to add the ability to read and carry over additional metadata from the streaming bronze table.  
-    def read_bundle_data(self, schemas = FhirSchemaModel()) -> DataFrame:
-        return (
-            self._raw_data
-            .withColumn("bundle", from_json("resource", BundleFhirResource.BUNDLE_SCHEMA))
-            .withColumn("entry", from_json("resource", StreamingBundleFhirResource.ENTRY_SCHEMA))
-            .withColumn("entry_struct", arrays_zip("entry.entry.fullUrl", "entry.entry.resource.resourceType")) #root level schema
-            .select(BundleFhirResource.list_entry_columns(schemas ) #entry[] into indvl cols
-                + [
-                    col("bundle.timestamp"), col("bundle.id"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-                   ,col("entry_struct")
-                ] # and root cols timestamp & id, plus ingest metadata
-            ).withColumn("bundleUUID", expr("uuid()"))
-        )
-
-##########################################
-### ingestion pipleine class defintion ###
-##########################################
-class ignitePipeline:
-
-    def __init__(
-        self
-        ,spark: SparkSession # = spark
-        ,volume: str
-    ):
+    def __init__(self, spark: SparkSession = SparkSession.getActiveSession()):
         self.spark = spark
+
+class bronzePipeline(fhirWorksDLTPipeline):
+
+    def __init__(self, spark: SparkSession, volume: str):
+        super().__init__(spark)
         self.volume = volume
 
     def __repr__(self):
-        return f"""fhirIngestionDLT(volume='{self.volume}')"""
+        return f"""fhirWorksDLT(volume='{self.volume}', quality='bronze')"""
 
     def raw_to_bronze(self, table_name: str, table_comment: str, table_properties: dict, source_folder_path_from_volume: str = "", maxFiles: int = 1000, maxBytes: str = "10g", options: dict = None):
         """
@@ -145,10 +86,18 @@ class ignitePipeline:
                 ).withColumn("bundleUUID", expr("uuid()")) 
             )
             return bronze_df
-        
+
+class silverPipeline(fhirWorksDLTPipeline):
+    def __init__(self, spark: SparkSession):
+        super().__init__(spark)
+
+    def __repr__(self):
+        return f"""fhirWorksDLT(quality='silver')""" 
+    
     def meta_stage_silver(
         self
         ,parsed_variant_meta_table: str
+        ,meta_keys: list
         ,live: bool = True
         ,temporary: bool = True
         ):
@@ -171,78 +120,72 @@ class ignitePipeline:
             sdf = self.spark.readStream.table(src_tbl_name)
             grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value"]]
 
-            # distinct_keys = self.spark.table(src_tbl_name).select("key").distinct().collect()
-            # distinct_keys = sorted([row.key for row in distinct_keys])
-
-            distinct_keys = ['DataModel','Destinations','EventDateTime','EventType','FacilityCode','Logs','Message','Source','Test','Transmission']
-
             return (
                 sdf
                 .groupBy(*grouping_cols)
                 .agg(
                     *[element_at(
                         collect_list(when(col("key") == k, col("value"))), 1
-                    ).alias(k) for k in distinct_keys]
+                    ).alias(k) for k in meta_keys]
                 )
             )
 
+    ## stream changes into target silver table
+    def stream_silver_apply_changes(
+        self
+        ,source: str
+        ,target: str
+        ,keys:  list
+        ,sequence_by: str
+        ,stored_as_scd_type: int = 1
+        ,comment: str = None
+        ,spark_conf: dict = None
+        ,table_properties: dict = None
+        ,partition_cols: list = None
+        ,cluster_by: list = None
+        ,path: str = None
+        ,schema: str = None
+        ,expect_all: dict = None
+        ,expect_all_or_drop: dict = None
+        ,expect_all_or_fail: dict = None
+        ,row_filter: str = None
+        ,ignore_null_updates: bool = False
+        ,apply_as_deletes: str = None
+        ,apply_as_truncates: str = None
+        ,column_list: list = None
+        ,except_column_list: list = None
+        ,track_history_column_list: list = None
+        ,track_history_except_column_list: list = None
+    ):
+        # create the target table
+        dlt.create_streaming_table(
+            name = target
+            ,comment = comment
+            ,spark_conf=spark_conf
+            ,table_properties=table_properties
+            ,partition_cols=partition_cols
+            ,cluster_by = cluster_by
+            ,path=path
+            ,schema=schema
+            ,expect_all = expect_all
+            ,expect_all_or_drop = expect_all_or_drop
+            ,expect_all_or_fail = expect_all_or_fail
+            ,row_filter = row_filter
+        )
 
+        dlt.apply_changes(
+            target = target
+            ,source = source
+            ,keys = keys
+            ,sequence_by = sequence_by
+            ,ignore_null_updates = ignore_null_updates
+            ,apply_as_deletes = apply_as_deletes
+            ,apply_as_truncates = apply_as_truncates
+            ,column_list = column_list
+            ,except_column_list = except_column_list
+            ,stored_as_scd_type = stored_as_scd_type
+            ,track_history_column_list = track_history_column_list
+            ,track_history_except_column_list = track_history_except_column_list
+        )
 
-        
-    # def fhir_entry(
-    #     self
-    #     ,bronze_table: str
-    #     ,fhir_resource: str
-    #     ,live: bool = True
-    #     ,temporary: bool = True
-    #     ,table_properties: dict = {
-    #         "pipelines.autoOptimize.managed" : "true"
-    #         ,"pipelines.reset.allowed" : "true"
-    #     }):
-    #     @dlt.table(
-    #         name = f"{fhir_resource}_entry".lower()
-    #         ,comment = f"FHIR bundle '{fhir_resource}' entry transformations on streaming FHIR data from bronze. Normally temporary."
-    #         ,temporary = temporary
-    #         ,table_properties = table_properties
-    #     )
-    #     def bundle_entry():
-    #         fhir_custom = FhirSchemaModel().custom_fhir_resource_mapping([fhir_resource])
-    #         if live:
-    #             sdf = self.spark.readStream.table(f"LIVE.{bronze_table}")
-    #         else:
-    #             sdf = self.spark.readStream.table(f"{bronze_table}")
-    #         bundle = StreamingFhir.from_raw_bundle_resource(sdf)
-    #         return bundle.entry(fhir_custom)
-
-    # def stage_silver(
-    #     self
-    #     ,entry_table: str
-    #     ,fhir_resource: str
-    #     ,live: bool = True
-    #     ,temporary: bool = True
-    #     ):
-    #     @dlt.table(
-    #         name = f"{fhir_resource}_stage".lower()
-    #         ,comment = f"Staging Table for the latest streamed '{fhir_resource}' FHIR resource data recieved in bronze.  Data is staged here to prepare it for upserts into final silver tables.  Normally temporary."
-    #         ,temporary = temporary
-    #         ,table_properties = {
-    #             "pipelines.autoOptimize.managed" : "true"
-    #             ,"pipelines.reset.allowed" : "true"
-    #         }
-    #     )
-    #     def stage_silver_fhir():
-    #         if live:
-    #             sdf = self.spark.readStream.table(f"LIVE.{entry_table}")
-    #         else:
-    #             sdf = self.spark.readStream.table(f"{entry_table}")
-    #         return (
-    #             sdf
-    #             .withColumn(fhir_resource, explode(fhir_resource).alias(fhir_resource))
-    #             .withColumn("bundle_id", col("id"))
-    #             .select(col("bundle_id"), col("timestamp"), col("bundleUUID"), col("fileMetadata"), col("ingestDate"), col("ingestTime")
-    #                     , col("entry_struct")
-    #                     , col(f"{fhir_resource}.*"))
-    #             .withColumnRenamed("id", f"{fhir_resource}_id".lower())
-    #             .withColumn(f"{fhir_resource}_uuid".lower(), expr(f"filter(entry_struct, x -> x.resourceType == '{fhir_resource}')[0].fullUrl"))
-    #         )
-
+    

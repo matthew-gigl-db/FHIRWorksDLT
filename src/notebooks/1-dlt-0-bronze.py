@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %pip install git+https://github.com/databrickslabs/dbignite.git
+# %pip install git+https://github.com/databrickslabs/dbignite.git
 
 # COMMAND ----------
 
@@ -25,9 +25,9 @@ import fhirWorksDLT
 
 # COMMAND ----------
 
-Pipeline = fhirWorksDLT.ignitePipeline(
-    spark = spark
-    ,volume = volume_path
+Pipeline = fhirWorksDLT.bronzePipeline(
+    spark = spark,
+    volume = volume_path
 )
 
 # COMMAND ----------
@@ -45,10 +45,3 @@ Pipeline.raw_to_bronze(
     ,maxFiles = 1000
     ,maxBytes = "20g"
 )
-
-# COMMAND ----------
-
-# Pipeline.fhir_entry(
-#   bronze_table="fhir_bronze"
-#   ,temporary = False
-# )
