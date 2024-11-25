@@ -3,12 +3,6 @@ from pyspark.sql.functions import *
 from pyspark.sql import DataFrame
 from pyspark.sql.types import *
 from pyspark.sql.session import SparkSession
-# from pyspark.sql.streaming import DataStreamReader, DataStreamWriter
-# from databricks.sdk import WorkspaceClient
-# from databricks.sdk.runtime import *
-# from dbignite.fhir_resource import FhirResource
-# from dbignite.fhir_resource import BundleFhirResource
-# from dbignite.fhir_mapping_model import FhirSchemaModel
 import uuid
 
 ##########################################
@@ -128,8 +122,6 @@ class silverPipeline(fhirWorksDLTPipeline):
 
             distinct_keys = self.spark.table(meta_key_table).select("key").distinct().collect()
             distinct_keys = sorted([row.key for row in distinct_keys])
-
-            # distinct_keys = ['DataModel','Destinations','EventDateTime','EventType','FacilityCode','Logs','Message','Source','Test','Transmission']
 
             return (
                 sdf
