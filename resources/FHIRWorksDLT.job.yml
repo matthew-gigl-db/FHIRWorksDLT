@@ -40,7 +40,7 @@ resources:
 
         - task_key: available_resources
           notebook_task:
-            notebook_path: ../src/notebooks/2-available-resources.py
+            notebook_path: ../src/notebooks/3-available-resources.py
           depends_on:
             - task_key: fhirWorks_dlt_pipeline_bronze
 
