@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %pip install git+https://github.com/databrickslabs/dbignite.git
+# %pip install git+https://github.com/databrickslabs/dbignite.git
 
 # COMMAND ----------
 
