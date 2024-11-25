@@ -44,6 +44,12 @@ resources:
           depends_on:
             - task_key: fhirWorks_dlt_pipeline_bronze
 
+        - task_key: fhirWorks_dlt_pipeline_silver
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver.id}
+          depends_on:
+            - task_key: available_resources
+
         # - task_key: parse_resources
         #   description: Loop through only the available resources received from the FHIR bundles and parse their entries using explode_variant.    
         #   depends_on:
@@ -57,21 +63,7 @@ resources:
         #         notebook_path: ../src/notebooks/3-parse-resources.sql
         #         base_parameters:
         #           resource_type: "{{input}}"
-        #         warehouse_id: ${var.warehouse_id}
-
-        # - task_key: fhirWorks_dlt_pipeline_silver_core
-        #   pipeline_task:
-        #     pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_core.id}
-        #   depends_on:
-        #     - task_key: fhirWorks_dlt_pipeline_bronze
-
-        # - task_key: fhirWorks_dlt_pipeline_silver_ext
-        #   pipeline_task:
-        #     pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_ext.id}
-        #   depends_on:
-        #     - task_key: fhirWorks_dlt_pipeline_bronze
-
-        
+        #         warehouse_id: ${var.warehouse_id}        
 
       parameters:
         - name: bundle.workspace.file_path
