@@ -43,7 +43,7 @@ AS SELECT
   resourceType
   ,COUNT(distinct bundleUUID) AS raw_bundle_count
 FROM
-  LIVE.fhir_bronze_parsed
+  LIVE.resources_parsed
 GROUP BY
   resourceType
 ORDER BY 
@@ -64,7 +64,7 @@ AS SELECT
   ,key
   ,COUNT(*) AS count
 FROM
-  LIVE.fhir_bronze_parsed
+  LIVE.resources_parsed
 GROUP BY
   resourceType
   ,key
