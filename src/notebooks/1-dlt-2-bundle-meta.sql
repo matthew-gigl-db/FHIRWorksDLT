@@ -24,3 +24,23 @@ AS SELECT DISTINCT
 FROM
   STREAM(LIVE.fhir_bronze_parsed),
   lateral variant_explode(meta) as meta_exploded
+
+-- COMMAND ----------
+
+CREATE OR REFRESH MATERIALIZED VIEW meta_keys
+TBLPROPERTIES (
+  "quality" = "gold"
+  ,"pipelines.autoOptimize.managed" = "true"
+  ,"pipelines.reset.allowed" = "true"
+  ,"delta.feature.variantType-preview" = "supported"
+)
+COMMENT 'Keys Used in the Bundle Meta Data'
+AS SELECT
+  key
+  ,COUNT(distinct bundleUUID) AS raw_bundle_count
+FROM
+  LIVE.bundle_meta_parsed
+GROUP BY
+  key
+ORDER BY 
+  key
