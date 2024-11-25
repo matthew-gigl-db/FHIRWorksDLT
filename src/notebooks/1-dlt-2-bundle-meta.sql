@@ -9,21 +9,23 @@ TBLPROPERTIES (
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
-  ,"delta.enableChangeDataFeed" = "true"
+  -- ,"delta.enableChangeDataFeed" = "true"
 )
 COMMENT "Exploded Paresed FHIR Bundle Meta Data to Prepare for Stage Silver."
-AS SELECT DISTINCT
-  bundleUUID
-  ,fileMetadata
+AS SELECT
+  fileMetadata 
   ,ingestDate
   ,ingestTime
-  ,bundle_id
+  ,bundleUUID
+  ,CAST(resource:id AS STRING) as bundle_id
+  ,CAST(resource:timestamp AS TIMESTAMP) as bundle_timestamp
+  ,resource:Meta as meta
   ,meta_exploded.pos as pos
   ,meta_exploded.key as key
   ,meta_exploded.value as value
 FROM
-  STREAM(LIVE.fhir_bronze_parsed),
-  lateral variant_explode(meta) as meta_exploded
+  STREAM(LIVE.fhir_bronze),
+  lateral variant_explode(resource:Meta) as meta_exploded
 
 -- COMMAND ----------
 

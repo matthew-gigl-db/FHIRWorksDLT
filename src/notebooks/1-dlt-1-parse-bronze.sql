@@ -9,7 +9,7 @@ TBLPROPERTIES (
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
-  ,"delta.enableChangeDataFeed" = "true"
+  -- ,"delta.enableChangeDataFeed" = "true"
 )
 COMMENT "Parsed streaming FHIR bundle data ingested from bronze."
 AS SELECT
