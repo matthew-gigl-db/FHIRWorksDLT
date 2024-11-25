@@ -9,7 +9,7 @@ TBLPROPERTIES (
   ,"pipelines.autoOptimize.managed" = "true"
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
-  -- ,"delta.enableChangeDataFeed" = "true"
+  ,"delta.enableChangeDataFeed" = "true"
 )
 COMMENT "Exploded Paresed FHIR Bundle Meta Data to Prepare for Stage Silver."
 AS SELECT

@@ -109,6 +109,7 @@ class silverPipeline(fhirWorksDLTPipeline):
                 "pipelines.autoOptimize.managed" : "true"
                 ,"pipelines.reset.allowed" : "true"
                 ,"delta.feature.variantType-preview" : "supported"
+                ,"delta.enableChangeDataFeed" : "true"
             }
         )
         def stage_meta():
@@ -127,6 +128,48 @@ class silverPipeline(fhirWorksDLTPipeline):
                     *[element_at(
                         collect_list(when(col("key") == k, col("value"))), 1
                     ).alias(k) for k in meta_keys]
+                )
+            )
+
+    def resource_stage_silver(
+        self
+        ,parsed_variant_resource_table: str
+        ,resource_keys: list
+        ,resource: str
+        ,live: bool = True
+        ,temporary: bool = True
+        ):
+        @dlt.table(
+            name = f"{resource}_stage"
+            ,comment = f"Staging Table for the latest streamed bundle {resource} data from the FHIR resource data recieved in bronze and variant exploded. This stage table transposes the exploded variant data wide for easier access.  Normally temporary."
+            ,temporary = temporary
+            ,table_properties = {
+                "pipelines.autoOptimize.managed" : "true"
+                ,"pipelines.reset.allowed" : "true"
+                ,"delta.feature.variantType-preview" : "supported"
+                ,"delta.enableChangeDataFeed" : "true"
+            }
+        )
+        def stage_resource():
+            if live:
+                src_tbl_name = f"LIVE.{parsed_variant_resource_table}"
+            else:
+                src_tbl_name = f"{parsed_variant_resource_table}"
+
+            sdf = (
+                self.spark.readStream.table(src_tbl_name)
+                .filter(col("resourceType") == resource)
+                .withColumnRenamed("fullUrl", f"{resource}_uuid")
+            )
+            grouping_cols = [col for col in sdf.columns if col not in ["pos", "key", "value", "fileMetadata", "ingestDate", "ingestTime", "bundle_id", "resourceType"]]
+
+            return (
+                sdf
+                .groupBy(*grouping_cols)
+                .agg(
+                    *[element_at(
+                        collect_list(when(col("key") == k, col("value"))), 1
+                    ).alias(k) for k in resource_keys]
                 )
             )
 
