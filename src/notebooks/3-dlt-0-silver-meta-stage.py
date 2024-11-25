@@ -59,7 +59,7 @@ Pipeline.stream_silver_apply_changes(
   ,path = None
   ,schema = None
   ,expect_all = None
-  ,expect_all_or_drop = None
+  ,expect_all_or_drop = {"valid_bundleUUID" : "bundleUUID IS NOT NULL"}
   ,expect_all_or_fail  = None
   ,row_filter  = None
   ,ignore_null_updates = False
