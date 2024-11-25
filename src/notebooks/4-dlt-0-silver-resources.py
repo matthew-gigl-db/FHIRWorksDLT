@@ -20,10 +20,10 @@ resources
 
 # COMMAND ----------
 
-from pyspark.sql.functions import explode, col, collect_list
+from pyspark.sql.functions import explode, col, collect_set
 
 resource_key_table = f"{source_catalog}.{source_schema}.resource_type_keys"
-resource_keys = spark.table(resource_key_table).groupBy("resourceType").agg(collect_list("key").alias("keys"))
+resource_keys = spark.table(resource_key_table).groupBy("resourceType").agg(collect_set("key").alias("keys"))
 resource_keys_dict = {row['resourceType']: row['keys'] for row in resource_keys.collect()}
 resource_keys_dict
 
@@ -57,7 +57,7 @@ for resource_type in resources:
 for resource_type in resources:
   Pipeline.stream_silver_apply_changes(
     source = f"{resource_type}_stage".lower()
-    ,target = f"{resource_type}".lower()
+    ,target = f"{resource_type}"
     ,keys = ["bundleUUID", f"{resource_type}_uuid"] # for now-- need to look for other ids with Redox
     ,sequence_by = "bundle_timestamp"
     ,stored_as_scd_type = 1
