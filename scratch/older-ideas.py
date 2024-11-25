@@ -1,3 +1,47 @@
+import dlt
+from pyspark.sql.functions import *
+from pyspark.sql import DataFrame
+from pyspark.sql.types import *
+from pyspark.sql.session import SparkSession
+from pyspark.sql.streaming import DataStreamReader, DataStreamWriter
+from typing import Callable
+import os
+import pandas as pd
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.runtime import *
+from dbignite.fhir_resource import FhirResource
+from dbignite.fhir_resource import BundleFhirResource
+from dbignite.fhir_mapping_model import FhirSchemaModel
+import uuid
+
+##########################################
+### raw data ingestion with autoloader ###
+##########################################
+# read streaming data as whole text using autoloader    
+def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str, wholeText: bool = False, skipRows: int = 0, options: dict = None) -> DataFrame:
+    stream_schema = "value STRING"
+    read_stream = (
+        spark
+        .readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format", "text")
+        .option("wholetext", wholeText)
+        .option("cloudFiles.maxBytesPerTrigger", maxBytes)
+        .option("cloudFiles.maxFilesPerTrigger", maxFiles)
+        .option("skipRows", skipRows)
+    )
+
+    if options is not None:
+        read_stream = read_stream.options(**options)
+
+    read_stream = (
+        read_stream
+        .schema(stream_schema)
+        .load(path)
+    )
+
+    return read_stream
+
 ########################################## 
 ### ingestion pipleine class defintion ###
 ########################################## 
