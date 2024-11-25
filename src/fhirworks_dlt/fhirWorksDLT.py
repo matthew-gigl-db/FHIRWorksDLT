@@ -131,36 +131,61 @@ class silverPipeline(fhirWorksDLTPipeline):
             )
 
     ## stream changes into target silver table
-    def stream_silver(self, bronze_table: str, table_name: str, sequence_by: str, keys: list, schema: str = None):
+    def stream_silver_apply_changes(
+        self
+        ,source: str
+        ,target: str
+        ,keys:  list
+        ,sequence_by: str
+        ,stored_as_scd_type: int = 1
+        ,comment: str = None
+        ,spark_conf: dict = None
+        ,table_properties: dict = None
+        ,partition_cols: list = None
+        ,cluster_by: list = None
+        ,path: str = None
+        ,schema: str = None
+        ,expect_all: dict = None
+        ,expect_all_or_drop: dict = None
+        ,expect_all_or_fail: dict = None
+        ,row_filter: str = None
+        ,ignore_null_updates: bool = False
+        ,apply_as_deletes: str = None
+        ,apply_as_truncates: str = None
+        ,column_list: list = None
+        ,except_column_list: list = None
+        ,track_history_column_list: list = None
+        ,track_history_except_column_list: list = None
+    ):
         # create the target table
         dlt.create_streaming_table(
-            name = table_name
-            ,comment = f"Silver database table created from ingested source data from associated {bronze_table} table."
-            # ,spark_conf={"<key>" : "<value", "<key" : "<value>"}
-            # ,table_properties={"<key>" : "<value>", "<key>" : "<value>"}
-            ,table_properties = None 
-            # ,partition_cols=["<partition-column>", "<partition-column>"]
-            ,partition_cols = None
-            # ,path="<storage-location-path>"
-            # ,schema = ddl
-            # ,expect_all = {"<key>" : "<value", "<key" : "<value>"}
-            # ,expect_all_or_drop = {"<key>" : "<value", "<key" : "<value>"}
-            # ,expect_all_or_fail = {"<key>" : "<value", "<key" : "<value>"}
+            name = target
+            ,comment = comment
+            ,spark_conf=spark_conf
+            ,table_properties=table_properties
+            ,partition_cols=partition_cols
+            ,cluster_by = cluster_by
+            ,path=path
+            ,schema=schema
+            ,expect_all = expect_all
+            ,expect_all_or_drop = expect_all_or_drop
+            ,expect_all_or_fail = expect_all_or_fail
+            ,row_filter = row_filter
         )
 
-        # now apply changes 
         dlt.apply_changes(
-            target = table_name
-            ,source =  f"{table_name}_stage"
+            target = target
+            ,source = source
             ,keys = keys
             ,sequence_by = sequence_by
-            ,ignore_null_updates = True
-            ,apply_as_deletes = None
-            ,apply_as_truncates = None
-            ,column_list = None
-            ,except_column_list = ["fullFilePath", "datasource", "inputFileName", "ingestTime", "ingestDate", "value", "sequence_by", "file_path", "file_name", "file_size", "file_block_start", "file_block_length", "file_modification_time"]
-            ,stored_as_scd_type = "1"
-            ,track_history_column_list = None
-            ,track_history_except_column_list = None
+            ,ignore_null_updates = ignore_null_updates
+            ,apply_as_deletes = apply_as_deletes
+            ,apply_as_truncates = apply_as_truncates
+            ,column_list = column_list
+            ,except_column_list = except_column_list
+            ,stored_as_scd_type = stored_as_scd_type
+            ,track_history_column_list = track_history_column_list
+            ,track_history_except_column_list = track_history_except_column_list
         )
+
     
