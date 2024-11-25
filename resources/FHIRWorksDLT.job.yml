@@ -46,9 +46,9 @@ resources:
 
         - task_key: fhirWorks_dlt_pipeline_silver
           pipeline_task:
-            pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver.id}
+            pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_meta.id}
           depends_on:
-            - task_key: available_resources
+            - task_key: fhirWorks_dlt_pipeline_bronze
 
         # - task_key: parse_resources
         #   description: Loop through only the available resources received from the FHIR bundles and parse their entries using explode_variant.    
