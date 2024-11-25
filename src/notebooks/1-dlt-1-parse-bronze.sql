@@ -22,7 +22,6 @@ AS SELECT
   ,resource:Meta as meta
   ,CAST(entry.value:fullUrl AS STRING) as fullUrl
   ,CAST(entry.value:resource.resourceType AS STRING) as resourceType
-  -- ,entry.value:resource as resource
   ,resource_data.pos as pos
   ,resource_data.key as key
   ,resource_data.value as value
@@ -40,7 +39,7 @@ TBLPROPERTIES (
   ,"pipelines.reset.allowed" = "true"
   ,"delta.feature.variantType-preview" = "supported"
 )
-COMMENT 'Current Resource Types Ingested from FHIR Bundles in Bronze'
+COMMENT 'Resource Types Ingested from FHIR Bundles in Bronze'
 AS SELECT
   resourceType
   ,COUNT(distinct bundleUUID) AS raw_bundle_count
@@ -50,3 +49,26 @@ GROUP BY
   resourceType
 ORDER BY 
   raw_bundle_count DESC
+
+-- COMMAND ----------
+
+CREATE OR REFRESH MATERIALIZED VIEW resource_type_keys
+TBLPROPERTIES (
+  "quality" = "gold"
+  ,"pipelines.autoOptimize.managed" = "true"
+  ,"pipelines.reset.allowed" = "true"
+  ,"delta.feature.variantType-preview" = "supported"
+)
+COMMENT 'Resource Types and Associated Keys Ingested from FHIR Bundles in Bronze'
+AS SELECT
+  resourceType
+  ,key
+  ,COUNT(distinct bundleUUID) AS raw_bundle_count
+FROM
+  LIVE.fhir_bronze_parsed
+GROUP BY
+  resourceType
+  ,key
+ORDER BY 
+  resourceType
+  ,key
