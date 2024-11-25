@@ -4,8 +4,6 @@ import dlt
 # COMMAND ----------
 
 sourcePath = spark.conf.get('bundle.sourcePath')
-# volume_path = spark.conf.get("workflow_inputs.volume_path")
-# source_folder_path_from_volume = spark.conf.get("workflow_inputs.source_folder_path_from_volume")
 source_catalog = spark.conf.get('workflow_inputs.source_catalog')
 source_schema = spark.conf.get('workflow_inputs.source_schema')
 
@@ -20,8 +18,7 @@ import fhirWorksDLT
 # COMMAND ----------
 
 Pipeline = fhirWorksDLT.silverPipeline(
-    # spark = spark
-    # ,volume = volume_path
+    spark = spark
 )
 
 # COMMAND ----------

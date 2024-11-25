@@ -42,12 +42,12 @@ def read_stream_raw(spark: SparkSession, path: str, maxFiles: int, maxBytes: str
 
     return read_stream
 
-class Pipeline:
+class fhirWorksDLTPipeline:
 
     def __init__(self, spark: SparkSession = SparkSession.getActiveSession()):
         self.spark = spark
 
-class bronzePipeline(Pipeline):
+class bronzePipeline(fhirWorksDLTPipeline):
 
     def __init__(self, spark: SparkSession, volume: str):
         super().__init__(spark)
@@ -96,7 +96,7 @@ class bronzePipeline(Pipeline):
             )
             return bronze_df
 
-class silverPipeline(Pipeline):
+class silverPipeline(fhirWorksDLTPipeline):
     def __init__(self, spark: SparkSession):
         super().__init__(spark)
 
