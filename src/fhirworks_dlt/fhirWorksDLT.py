@@ -49,7 +49,7 @@ class Pipeline:
 
 class bronzePipeline(Pipeline):
 
-    def __init__(self, volume: str):
+    def __init__(self, spark: SparkSession, volume: str):
         super().__init__(spark)
         self.volume = volume
 
@@ -97,7 +97,7 @@ class bronzePipeline(Pipeline):
             return bronze_df
 
 class silverPipeline(Pipeline):
-    def __init__(self):
+    def __init__(self, spark: SparkSession):
         super().__init__(spark)
 
     def __repr__(self):
