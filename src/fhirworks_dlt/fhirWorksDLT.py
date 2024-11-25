@@ -109,6 +109,7 @@ class silverPipeline(fhirWorksDLTPipeline):
                 "pipelines.autoOptimize.managed" : "true"
                 ,"pipelines.reset.allowed" : "true"
                 ,"delta.feature.variantType-preview" : "supported"
+                ,"delta.enableChangeDataFeed" : "true"
             }
         )
         def stage_meta():
@@ -146,6 +147,7 @@ class silverPipeline(fhirWorksDLTPipeline):
                 "pipelines.autoOptimize.managed" : "true"
                 ,"pipelines.reset.allowed" : "true"
                 ,"delta.feature.variantType-preview" : "supported"
+                ,"delta.enableChangeDataFeed" : "true"
             }
         )
         def stage_resource():
