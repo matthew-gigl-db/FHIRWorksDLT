@@ -25,6 +25,7 @@ Pipeline = fhirWorksDLT.silverPipeline(
 
 Pipeline.meta_stage_silver(
   parsed_variant_meta_table = f"{source_catalog}.{source_schema}.bundle_meta_parsed"
+  ,meta_key_table = f"{source_catalog}.{source_schema}.meta_keys"
   ,live = False
   ,temporary = False
 )
