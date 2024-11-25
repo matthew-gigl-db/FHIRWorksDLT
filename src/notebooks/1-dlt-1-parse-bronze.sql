@@ -63,7 +63,7 @@ COMMENT 'Resource Types and Associated Keys Ingested from FHIR Bundles in Bronze
 AS SELECT
   resourceType
   ,key
-  ,COUNT(distinct bundleUUID) AS raw_bundle_count
+  ,COUNT(*) AS count
 FROM
   LIVE.fhir_bronze_parsed
 GROUP BY
