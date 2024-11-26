@@ -79,11 +79,13 @@ resources:
         - name: bundle.catalog
           default: ${var.catalog}
         - name: bundle.schema
-          default: ${var.schema}
+          # default: ${var.schema}
+          default: variant_preview
         - name: bundle.external_location
           default: ${var.external_location}
         - name: workflow.run_setup
-          default: ${var.run_setup}
+          # default: ${var.run_setup}
+          default: true
 
 
 
