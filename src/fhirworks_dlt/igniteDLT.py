@@ -133,7 +133,7 @@ class ignitePipeline:
                 .withColumn("inputFilename", col("_metadata.file_name"))
                 .withColumn("fullFilePath", col("_metadata.file_path"))
                 .withColumn("fileMetadata", col("_metadata"))
-                .withColumnRenamed(col("value"), "resource")
+                .withColumn("resource", col("value"))
                 .select(
                     "fullFilePath"
                     ,lit(file_path).alias("datasource")
