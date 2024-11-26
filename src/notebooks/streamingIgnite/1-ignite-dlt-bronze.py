@@ -25,7 +25,7 @@ import igniteDLT as fhirWorksDLT
 
 # COMMAND ----------
 
-Pipeline = fhirWorksDLT.bronzePipeline(
+Pipeline = fhirWorksDLT.ignitePipeline(
     spark = spark,
     volume = volume_path
 )
