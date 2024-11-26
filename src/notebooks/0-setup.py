@@ -82,6 +82,8 @@ volumes = [v.as_dict() for v in volumes]
 # COMMAND ----------
 
 # DBTITLE 1,Create Volume if Not Exists, Raise Exception if External Location is Not Set
+from databricks.sdk.service import catalog
+
 if any(v['name'] == "landing" for v in volumes):
   print(f'Volume {catalog_use}.{schema_use}.landing already exists')
 else:
