@@ -125,4 +125,5 @@ display(df)
 
 # COMMAND ----------
 
-
+# MAGIC %sql
+# MAGIC select * from locations where BundleUUID = 'ad51c748-8889-41d8-9842-9fa62fbad606'
