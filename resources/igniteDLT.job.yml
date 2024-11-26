@@ -1,0 +1,91 @@
+# The main job for FHIRWorksDLT.
+resources:
+  jobs:
+    igniteDLT_job:
+      name: igniteDLT_job
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      email_notifications:
+        on_failure:
+          - matthew.giglia@databricks.com
+
+      tasks:
+        # - task_key: run_setup_conditional
+        #   condition_task:
+        #     op: EQUAL_TO
+        #     left: "{{job.parameters.`workflow.run_setup`}}"
+        #     right: "true"
+        #   description: Conditional to determine if the 0-setup notebook task should be executed to create the catalog, schema, and external volume used in the workflow.  Running the 0-setup task more than once does not harm the workflow, but may result in unnecessary compute costs.  
+
+        # - task_key: unity_catalog_setup
+        #   notebook_task:
+        #     notebook_path: ../src/notebooks/0-setup.py
+        #   depends_on:
+        #     - task_key: run_setup_conditional
+        #       outcome: "true"
+
+        - task_key: ignite_dlt_pipeline_bronze
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.ignite_dlt_bronze.id}
+          # depends_on:
+          #   - task_key: unity_catalog_setup
+          #   - task_key: run_setup_conditional
+          #     outcome: "false"
+          # run_if: AT_LEAST_ONE_SUCCESS
+
+        # - task_key: available_resources
+        #   notebook_task:
+        #     notebook_path: ../src/notebooks/3-available-resources.py
+        #   depends_on:
+        #     - task_key: fhirWorks_dlt_pipeline_bronze
+
+        - task_key: ignite_dlt_pipeline_meta_silver
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.ignite_dlt_silver_core.id}
+          depends_on:
+            - task_key: ignite_dlt_pipeline_bronze
+
+        # - task_key: fhirWorks_dlt_pipeline_resources_silver
+        #   pipeline_task:
+        #     pipeline_id: ${resources.pipelines.fhirWorks_dlt_silver_resources.id}
+        #   depends_on:
+        #     - task_key: fhirWorks_dlt_pipeline_bronze
+
+        # - task_key: parse_resources
+        #   description: Loop through only the available resources received from the FHIR bundles and parse their entries using explode_variant.    
+        #   depends_on:
+        #     - task_key: available_resources
+        #   for_each_task:
+        #     inputs: "{{tasks.[available_resources].values.[resource_types]}}"
+        #     concurrency: 25
+        #     task:
+        #       task_key: parse_resource_iteration
+        #       notebook_task:
+        #         notebook_path: ../src/notebooks/3-parse-resources.sql
+        #         base_parameters:
+        #           resource_type: "{{input}}"
+        #         warehouse_id: ${var.warehouse_id}        
+
+      parameters:
+        - name: bundle.workspace.file_path
+          default: ${workspace.file_path}
+        - name: bundle.target
+          default: ${bundle.target}
+        - name: bundle.catalog
+          default: ${var.catalog}
+        - name: bundle.schema
+          # default: ${var.schema}
+          default: variant_preview
+        - name: bundle.external_location
+          default: ${var.external_location}
+        - name: workflow.run_setup
+          default: ${var.run_setup}
+          # default: true
+
+
+
