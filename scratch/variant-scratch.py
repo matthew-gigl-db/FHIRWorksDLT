@@ -27,6 +27,7 @@ display(df)
 # COMMAND ----------
 
 grouping_cols = [col for col in df.columns if col not in ["pos", "key", "value"]]
+grouping_cols
 
 # COMMAND ----------
 
@@ -97,3 +98,31 @@ display(stream_tdf)
 
 tdf_minus_tdf2 = tdf.select(*tdf2.columns).subtract(tdf2)
 display(tdf_minus_tdf2)
+
+# COMMAND ----------
+
+from pyspark.sql.functions import *
+
+# COMMAND ----------
+
+df = spark.table("resources_parsed").filter(col("resourceType") == "Location")
+display(df)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC with locations as (
+# MAGIC   SELECT * from redox.main.resources_parsed where resourceType = 'Location'
+# MAGIC )
+# MAGIC select 
+# MAGIC   BundleUUID
+# MAGIC   ,fullUrl
+# MAGIC   ,key
+# MAGIC   ,count(key) as cnt
+# MAGIC from locations
+# MAGIC group by BundleUUID, fullUrl, key
+# MAGIC order by cnt desc
+
+# COMMAND ----------
+
+

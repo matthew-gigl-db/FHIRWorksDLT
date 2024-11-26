@@ -126,7 +126,7 @@ class silverPipeline(fhirWorksDLTPipeline):
                 .groupBy(*grouping_cols)
                 .agg(
                     *[element_at(
-                        collect_list(when(col("key") == k, col("value"))), 1
+                        collect_set(when(col("key") == k, col("value"))), 1
                     ).alias(k) for k in meta_keys]
                 )
             )
@@ -168,7 +168,7 @@ class silverPipeline(fhirWorksDLTPipeline):
                 .groupBy(*grouping_cols)
                 .agg(
                     *[element_at(
-                        collect_list(when(col("key") == k, col("value"))), 1
+                        collect_set(when(col("key") == k, col("value"))), 1
                     ).alias(k) for k in resource_keys]
                 )
             )
