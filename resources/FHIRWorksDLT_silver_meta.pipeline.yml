@@ -9,8 +9,7 @@ resources:
         workflow_inputs.source_catalog: ${var.catalog}
         # workflow_inputs.source_schema: ${var.schema}
         workflow_inputs.source_schema: variant_preview
-        # workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
-        workflow_inputs.volume_path: /Volumes/redox/variant_preview/landing
+        workflow_inputs.volume_path: ${var.volume_path}   # /Volumes/redox/main/landing
         workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
       libraries:
         - notebook:
