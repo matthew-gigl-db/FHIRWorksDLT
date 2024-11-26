@@ -146,7 +146,7 @@ class ignitePipeline:
             )
             return bronze_df
           
-        def fhir_entry(
+    def fhir_entry(
         self
         ,bronze_table: str
         ,fhir_resource: str
