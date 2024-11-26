@@ -19,7 +19,7 @@ targets:
       host: https://adb-984752964297111.11.azuredatabricks.net
     variables: 
       catalog: redox
-      schema: variant_preview
+      schema: main
       warehouse_id: d1184b8c2a8a87eb
 
   dev_aws:
