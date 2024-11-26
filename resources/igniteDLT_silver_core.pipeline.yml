@@ -13,7 +13,7 @@ resources:
         workflow.inputs.fhir_schemas: ${var.us_core_schemas}
       libraries:
         - notebook:
-            path: ../src/notebooks/streamingignite/2-ignite-dlt-silver.py
+            path: ../src/notebooks/streamingIgnite/2-ignite-dlt-silver.py
       target: ${var.schema}
       development: true
       photon: true

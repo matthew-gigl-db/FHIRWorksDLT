@@ -11,7 +11,7 @@ resources:
         workflow_inputs.source_folder_path_from_volume:  ${var.path_from_volume}   # Files/default
       libraries:
         - notebook:
-            path: ../src/notebooks/streamingignite/1-ignite-dlt-bronze.py
+            path: ../src/notebooks/streamingIgnite/1-ignite-dlt-bronze.py
       target: ${var.schema}
       development: true
       photon: true
