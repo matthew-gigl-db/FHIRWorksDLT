@@ -15,6 +15,29 @@ help(dbignite)
 
 # COMMAND ----------
 
+from pyspark.sql.functions import *
+from dbignite.readers import read_from_directory
+
+# COMMAND ----------
+
+#Read sample FHIR Bundle data from this repo
+redox_data = "/Volumes/redox/main/landing/Files/default/"
+bundle = read_from_directory(redox_data)
+
+#Read all the bundles and parse
+df = bundle.entry()
+
+# COMMAND ----------
+
+display(df, limit = 1)
+
+# COMMAND ----------
+
+display(df.select(explode("Patient").alias("Patient"), col("bundleUUID"), col("Claim")).select(col("Patient"), col("bundleUUID"), explode("Claim").alias("Claim")).select(
+  col("bundleUUID").alias("UNIQUE_FHIR_ID")))
+
+# COMMAND ----------
+
 from dbignite.fhir_resource import FhirResource
 
 # COMMAND ----------
@@ -31,15 +54,19 @@ from pyspark.sql.functions import col
 
 # COMMAND ----------
 
-display(df.filter(col("resource.id") == "57c09138-aa92-4665-9fc7-3b5611b81f58"))
-
-# COMMAND ----------
-
 bundle = FhirResource.from_raw_bundle_resource(df)
 
 # COMMAND ----------
 
 type(bundle)
+
+# COMMAND ----------
+
+bundle.entry()
+
+# COMMAND ----------
+
+
 
 # COMMAND ----------
 
